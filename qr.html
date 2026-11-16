@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tạo mã QR đặt xe – in dán xe / quầy</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@2.0.4/dist/qrcode.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Be Vietnam Pro",system-ui,sans-serif;background:#eef3f0;color:#10231a}
+.tool{max-width:980px;margin:0 auto;padding:20px 16px;display:grid;gap:18px;grid-template-columns:320px 1fr}
+@media(max-width:820px){.tool{grid-template-columns:1fr}}
+.panel{background:#fff;border-radius:16px;padding:18px;box-shadow:0 6px 20px rgba(0,0,0,.06);align-self:start}
+.panel h2{margin:0 0 12px;font-size:18px}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px;color:#3d5247}
+input,select{width:100%;border:1.5px solid #dfe8e3;border-radius:10px;padding:10px 12px;font:inherit;font-size:14px}
+.btns{display:grid;gap:8px;margin-top:16px}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px;cursor:pointer}
+.p{background:#0f7a48;color:#fff}.o{background:#effaf3;color:#0d6340}
+.small{font-size:12px;color:#6b7d73;margin-top:8px;word-break:break-all}
+/* Poster */
+.poster{width:148mm;min-height:210mm;margin:0 auto;background:#fff;border-radius:6mm;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.12);display:flex;flex-direction:column}
+.ph{background:linear-gradient(135deg,#22aa62,#0b4f30);color:#fff;padding:9mm 9mm 16mm;text-align:center;position:relative}
+.ph .lg{display:flex;align-items:center;justify-content:center;gap:3mm;font-weight:800;font-size:7mm}
+.ph .lg img{width:11mm;height:11mm;border-radius:3mm}
+.ph h1{margin:4mm 0 1mm;font-size:10.5mm;line-height:1.1;font-weight:800;letter-spacing:-.3mm}
+.ph p{margin:0;font-size:4.2mm;opacity:.92}
+.qrbox{margin:-11mm auto 0;background:#fff;border-radius:6mm;padding:5mm;box-shadow:0 4mm 10mm rgba(0,0,0,.12);width:max-content;position:relative}
+.qrbox img{display:block;width:72mm;height:72mm;image-rendering:pixelated}
+.qrbox .cl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:15mm;height:15mm;border-radius:3.5mm;border:1.6mm solid #fff;background:#fff}
+.scan{text-align:center;font-weight:800;font-size:6mm;color:#0d6340;margin:5mm 0 1mm}
+.scan small{display:block;font-weight:600;font-size:3.6mm;color:#6b7d73}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;padding:4mm 9mm}
+.feat div{background:#effaf3;border-radius:3mm;padding:3mm 2mm;text-align:center;font-size:3.4mm;font-weight:700;color:#0b4f30}
+.feat b{display:block;font-size:6mm}
+.route{text-align:center;font-size:3.6mm;color:#3d5247;padding:0 9mm}
+.pf{margin-top:auto;background:#10231a;color:#fff;text-align:center;padding:5mm}
+.pf small{display:block;font-size:3.4mm;opacity:.75}
+.pf b{font-size:9mm;letter-spacing:.3mm}
+@media print{
+  @page{size:A5;margin:0}
+  body{background:#fff}
+  .panel{display:none}.tool{display:block;padding:0}
+  .poster{box-shadow:none;border-radius:0;width:148mm;height:210mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="tool">
+  <div class="panel">
+    <h2>🖨️ Tạo mã QR đặt xe</h2>
+    <label>Địa chỉ web app</label>
+    <input id="url">
+    <label>Tuyến chọn sẵn khi khách quét (tuỳ chọn)</label>
+    <select id="route"><option value="">— Khách tự chọn —</option></select>
+    <label>Nguồn QR (để biết khách đến từ đâu)</label>
+    <input id="src" placeholder="VD: xe-29A12345, khach-san-ABC, to-roi">
+    <label><input type="checkbox" id="inst" style="width:auto"> Mở sẵn hướng dẫn cài app khi quét</label>
+    <div class="btns">
+      <button class="p" onclick="window.print()">🖨️ In poster (A5)</button>
+      <button class="o" id="dl">⬇️ Tải ảnh mã QR (PNG)</button>
+    </div>
+    <div class="small">Link trong QR:<br><b id="final"></b></div>
+  </div>
+
+  <div class="poster">
+    <div class="ph">
+      <div class="lg"><img src="icons/icon-192.png" alt=""><span id="pBrand"></span></div>
+      <h1>QUÉT MÃ<br>ĐẶT XE GHÉP</h1>
+      <p id="pSlogan"></p>
+    </div>
+    <div class="qrbox"><img id="qr" alt="QR"><img class="cl" src="icons/icon-192.png" alt=""></div>
+    <div class="scan">Mở Camera → quét mã → chọn giờ → Đặt xe<small>Không cần tải app · Tổng đài gọi lại xác nhận ngay</small></div>
+    <div class="feat" id="feat"></div>
+    <div class="route" id="pRoutes"></div>
+    <div class="pf"><small>Hotline / Zalo đặt xe 24/7</small><b id="pHot"></b></div>
+  </div>
+</div>
+<script>
+var C=window.APP_CONFIG,$=function(i){return document.getElementById(i)};
+var names={};C.PLACES.forEach(function(p){names[p.key]=p.name});
+var base=location.href.replace(/qr\.html.*$/,"");
+$("url").value=base;
+C.ROUTES.forEach(function(r){[[r.a,r.b],[r.b,r.a]].forEach(function(x){var o=document.createElement("option");o.value=x[0]+"|"+x[1];o.textContent=names[x[0]]+" → "+names[x[1]];$("route").appendChild(o);});});
+$("pBrand").textContent=C.BRAND;$("pSlogan").textContent=C.SLOGAN;$("pHot").textContent=C.HOTLINE_DISPLAY;
+$("feat").innerHTML=C.HIGHLIGHTS.slice(0,3).map(function(h){return "<div><b>"+h.icon+"</b>"+h.text+"</div>"}).join("");
+$("pRoutes").textContent=C.PLACES.map(function(p){return p.name}).join(" · ");
+var dataUrl="";
+function build(){
+  var u=$("url").value.trim()||base,ps=[];
+  var r=$("route").value;if(r){var a=r.split("|");ps.push("from="+a[0],"to="+a[1]);}
+  var s=$("src").value.trim();if(s)ps.push("src="+encodeURIComponent(s));
+  if($("inst").checked)ps.push("install=1");
+  var full=u+(ps.length?(u.indexOf("?")>=0?"&":"?")+ps.join("&"):"");
+  $("final").textContent=full;
+  var q=qrcode(0,"H");q.addData(full);q.make();
+  var n=q.getModuleCount(),cell=Math.max(8,Math.floor(1000/(n+8))),m=4*cell,size=n*cell+2*m;
+  var cv=document.createElement("canvas");cv.width=cv.height=size;var g=cv.getContext("2d");
+  g.fillStyle="#fff";g.fillRect(0,0,size,size);g.fillStyle="#0b3d26";
+  for(var y=0;y<n;y++)for(var x=0;x<n;x++)if(q.isDark(y,x))g.fillRect(m+x*cell,m+y*cell,cell,cell);
+  dataUrl=cv.toDataURL("image/png");$("qr").src=dataUrl;
+}
+["url","route","src","inst"].forEach(function(i){$(i).addEventListener("input",build);$(i).addEventListener("change",build);});
+$("dl").onclick=function(){var a=document.createElement("a");a.href=dataUrl;a.download="QR-dat-xe"+($("src").value?"-"+$("src").value:"")+".png";a.click();};
+build();
+</script>
+</body>
+</html>
