@@ -4,7 +4,7 @@
  *  -> Sau khi sửa: tăng APP_VERSION 1 số để điện thoại khách tự cập nhật.
  * ===================================================================== */
 window.APP_CONFIG = {
-  APP_VERSION: "1.0.0",
+  APP_VERSION: "1.0.1",
 
   /* Thương hiệu hiển thị */
   BRAND: "Xe Xanh",
@@ -16,7 +16,7 @@ window.APP_CONFIG = {
 
   /* URL Web App Google Apps Script (dán vào sau khi Deploy Code.gs).
      Để trống "" = chế độ DEMO (không gửi Telegram, chỉ hiện thông báo). */
-  API_URL: "",
+  API_URL: "https://script.google.com/macros/s/AKfycbzNV1zZrskPx1unvRlMA0PvMSbncIx2bSiu0m_hJBHKb3ah-0F0NsbePIRKkcLx6Thg/exec",
 
   /* Giờ xuất bến có thể chọn */
   FIRST_HOUR: 4,        // chuyến sớm nhất 04:00
