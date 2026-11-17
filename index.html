@@ -54,11 +54,13 @@ a{color:inherit}
 .hotbar{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(90deg,var(--g800),var(--g600));color:#fff;text-decoration:none;padding:7px 12px;font-size:14px;font-weight:600;letter-spacing:.1px}
 .hotbar svg{width:16px;height:16px;flex:none;animation:ring 2.4s ease-in-out infinite}
 .hotbar b{font-size:16px;font-weight:800;letter-spacing:.4px}
-.qnav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 0}
-.qnav button{display:flex;align-items:center;justify-content:center;gap:6px;border-radius:14px;padding:12px 8px;font-weight:800;font-size:15px;border:1.5px solid var(--line);background:#fff;color:var(--g800);box-shadow:0 2px 8px rgba(15,60,40,.06)}
+.qnav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0 0}
+.qnav button{display:flex;align-items:center;justify-content:center;gap:6px;border-radius:14px;padding:11px 6px;font-weight:800;font-size:14px;line-height:1.2;text-align:center;position:relative;border:1.5px solid var(--line);background:#fff;color:var(--g800);box-shadow:0 2px 8px rgba(15,60,40,.06)}
 .card.flash{box-shadow:0 0 0 3px var(--g500);transition:box-shadow .3s}
 .qnav button.cx{color:var(--red);border-color:#f3c4c4}
-.qnav button .bd{min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;line-height:18px;padding:0 5px}
+.qnav button .bd{position:absolute;top:-8px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#fff;font-size:12px;line-height:22px;padding:0 6px;box-shadow:0 0 0 2px #fff;z-index:2;animation:pop 1.2s ease-in-out infinite}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.qnav button.ch{color:var(--g800);border-color:var(--g500);background:var(--g50)}
 .hotbar .tap{font-size:11.5px;font-weight:700;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:999px;white-space:nowrap}
 @keyframes ring{0%,60%,100%{transform:rotate(0)}65%,75%{transform:rotate(-14deg)}70%,80%{transform:rotate(14deg)}}
 
@@ -318,6 +320,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
   <!-- 2 nút nhanh -->
   <div class="qnav">
     <button type="button" id="qPrice">💰 Bảng giá</button>
+    <button type="button" class="ch" id="qChat"><span id="qChatTx">💬 Nhắn nhà xe</span><span class="bd hidden" id="qChatBd"></span></button>
     <button type="button" class="cx" id="qCancel">❌ Huỷ chuyến</button>
   </div>
 
@@ -660,7 +663,7 @@ $("brandName").textContent=L.cfg(C.HEADER_TITLE||C.BRAND); $("brandSlogan").text
 $("langSel").innerHTML=L.LANGS.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===L.lang?" selected":"")+'>'+x[1]+'</option>';}).join("");
 $("langSel").addEventListener("change",function(){L.set(this.value);});
 if(L.i){$("foreignNote").innerHTML=T("foreign");$("foreignNote").classList.remove("hidden");$("foreignNote2").innerHTML=T("foreign");$("foreignNote2").classList.remove("hidden");}
-$("qPrice").textContent=T("navPrice");$("qCancel").textContent=T("navCancel");
+$("qPrice").textContent=T("navPrice");$("qCancel").textContent=T("navCancel");$("qChatTx").textContent=T("navChat");
 function goTo(id){var el=$(id),hd=document.querySelector(".top");window.scrollTo({top:el.getBoundingClientRect().top+window.pageYOffset-(hd?hd.offsetHeight:0)-10,behavior:"smooth"});el.classList.add("flash");setTimeout(function(){el.classList.remove("flash");},1600);}
 $("qPrice").addEventListener("click",function(){goTo("priceCard");});
 $("qCancel").addEventListener("click",function(){if(!LS.get("xg_hist",[]).length){toast(T("noTrips"),4500);return;}goTo("histCard");});
@@ -913,7 +916,7 @@ function done(code,demo){
   LS.set("xg_hist",h.slice(0,10));renderHist();
   rememberAddr("pickup",pending.pickup.replace(/ 📍-?[\d.]+,-?[\d.]+$/,""));rememberAddr("dropoff",pending.dropoff);setGps("");
   $("pickup").value="";$("dropoff").value="";$("note").value="";renderAddr("pickup");renderAddr("dropoff");
-  $("doneChat").classList.toggle("hidden",!L.i||demo);$("doneChat").textContent=T("chatBtn");if(L.i&&!demo)startPoll();
+  $("doneChat").classList.toggle("hidden",!!demo);$("doneChat").textContent=T("chatBtn");if(!demo)startPoll();
   openOv("ovDone");
   if(navigator.vibrate)navigator.vibrate([20,40,20]);
 }
@@ -935,6 +938,7 @@ function renderHist(){
     var from=x.fk?pl(x.fk):x.from,to=x.tk?pl(x.tk):x.to,sv=x.sv?svcT(x.sv):x.svc;
     return '<div class="hitem"><div class="hr"><b>'+esc(from)+" → "+esc(to)+'</b><small>'+esc(x.time)+" · "+esc(x.date)+" · "+esc(sv)+(x.seats?" · "+x.seats+" "+T("seats"):"")+(x.cancelled?'<span class="tg">'+T("cancelled")+'</span>':"")+'</small></div>'+
       '<div class="hx"><code>'+esc(x.code)+'</code>'+(chatOk(x)?'<button type="button" class="chbtn" data-ch="'+i+'">'+T("chatBtn")+((x.n||0)>(x.seen||0)?'<span class="bd">'+((x.n||0)-(x.seen||0))+'</span>':"")+'</button>':"")+(canCancel?'<button type="button" class="cbtn" data-cx="'+i+'">'+T("cancelBtn")+'</button>':"")+'</div></div>';}).join("");
+  if(typeof updBadge==="function")updBadge();
 }
 /* ---------- Huỷ chuyến ---------- */
 var cxIdx=-1,cxR=-1;
@@ -969,13 +973,13 @@ $("cxOk").addEventListener("click",function(){
 
 /* ---------- Nhắn tin tự dịch (khách nước ngoài) ---------- */
 var chIdx=-1,chTimer=null,chBusy=false;
-function chatOk(x){return x&&x.lang&&x.lang!=="vi"&&!x.cancelled&&tripTime(x)>Date.now()-2*864e5;}
+function chatOk(x){return x&&!x.cancelled&&tripTime(x)>Date.now()-2*864e5;}
 function apiPost(o){return fetch(C.API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(o)}).then(function(r){return r.json();});}
 function phoneOf(x){return x.phone||(LS.get("xg_profile",{}).phone)||"";}
 function openChat(i){
   var x=LS.get("xg_hist",[])[i];if(!x)return;chIdx=i;
   $("chTitle").textContent=T("chatTitle");$("chSub").textContent=T("chatSub",{c:x.code});
-  $("chAuto").textContent=T("chatAuto");$("chIn").placeholder=T("chatPh");$("chSend").textContent=T("chatSend");
+  $("chAuto").textContent=(x.lang&&x.lang!=="vi")?T("chatAuto"):"";$("chIn").placeholder=T("chatPh");$("chSend").textContent=T("chatSend");
   $("chList").innerHTML='<div class="chempty">'+esc(T("chatEmpty"))+'</div>';
   openOv("ovChat");loadChat(true);
   clearInterval(chTimer);chTimer=setInterval(function(){if(!$("ovChat").classList.contains("show")){clearInterval(chTimer);return;}loadChat(false);},6000);
@@ -1000,7 +1004,7 @@ function sendChat(){
   var box=$("chList");if(box.querySelector(".chempty"))box.innerHTML="";
   box.insertAdjacentHTML("beforeend",'<div class="cm me pend">'+esc(txt).replace(/\n/g,"<br>")+'<i>…</i></div>');box.scrollTop=box.scrollHeight;
   $("chIn").value="";
-  apiPost({action:"msg",code:x.code,phone:phoneOf(x),text:txt,lang:x.lang||L.lang}).then(function(j){
+  apiPost({action:"msg",code:x.code,phone:phoneOf(x),text:txt,lang:x.lang||"vi"}).then(function(j){
     chBusy=false;$("chSend").disabled=false;
     if(j&&j.ok)loadChat(false);else{toast("⚠️ "+(j&&j.error||T("netErr")),4000);$("chIn").value=txt;loadChat(false);}
   }).catch(function(){chBusy=false;$("chSend").disabled=false;$("chIn").value=txt;toast("⚠️ "+T("netErr"),4000);});
@@ -1008,6 +1012,14 @@ function sendChat(){
 $("chSend").addEventListener("click",sendChat);
 $("chIn").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat();}});
 $("hist").addEventListener("click",function(e){var b=e.target.closest("[data-ch]");if(b)openChat(+b.dataset.ch);});
+$("qChat").addEventListener("click",function(){
+  var H=LS.get("xg_hist",[]),act=[];H.forEach(function(x,i){if(chatOk(x))act.push(i);});
+  if(!act.length){toast(T("noChat"),4500);return;}
+  var un=act.filter(function(i){return (H[i].n||0)>(H[i].seen||0);});
+  if(act.length===1||un.length===1){openChat(un.length===1?un[0]:act[0]);return;}
+  goTo("histCard");});
+function updBadge(){var H=LS.get("xg_hist",[]),n=0;H.forEach(function(x){if(chatOk(x))n+=Math.max(0,(x.n||0)-(x.seen||0));});
+  var b=$("qChatBd");if(!b)return;b.textContent=n>9?"9+":n;b.classList.toggle("hidden",!n);}
 $("doneChat").addEventListener("click",function(){closeOv("ovDone");openChat(0);});
 /* kiểm tra tin mới cho các chuyến của khách nước ngoài */
 function checkNewMsgs(){

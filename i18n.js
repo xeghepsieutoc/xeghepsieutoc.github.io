@@ -116,6 +116,8 @@ window.XG_I18N = (function () {
     navPrice: ["💰 Bảng giá", "💰 Fares", "💰 价格表", "💰 요금표"],
     navCancel: ["❌ Huỷ chuyến", "❌ Cancel a trip", "❌ 取消行程", "❌ 예약 취소"],
     noTrips: ["Bạn chưa đặt chuyến nào trên máy này. Đặt qua tổng đài? Hãy gọi hotline để huỷ.", "No bookings on this phone yet. Booked by phone? Please call us to cancel.", "本机暂无预订。电话预订的请致电我们取消。", "이 휴대폰에는 예약 내역이 없습니다. 전화로 예약하셨다면 전화로 취소해 주세요."],
+    navChat: ["💬 Nhắn nhà xe", "💬 Message us", "💬 联系车行", "💬 메시지"],
+    noChat: ["Đặt xe xong là bạn nhắn tin được với nhà xe ngay tại đây.", "After booking you can message the driver team right here.", "预订后即可在这里给车行发消息。", "예약 후 여기에서 바로 업체에 메시지를 보낼 수 있습니다."],
     tapCall: ["Bấm để gọi", "Tap to call", "点击拨打", "눌러서 전화"],
     chatBtn: ["💬 Nhắn nhà xe", "💬 Message us", "💬 发消息", "💬 메시지"],
     chatTitle: ["Nhắn tin với nhà xe", "Chat with the driver team", "与车行聊天", "차량 업체와 채팅"],
