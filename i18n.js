@@ -5,7 +5,7 @@
 window.XG_I18N = (function () {
   var LANGS = [["vi", "🇻🇳 VI"], ["en", "🇬🇧 EN"], ["zh", "🇨🇳 中文"], ["ko", "🇰🇷 한국어"], ["ja", "🇯🇵 日本語"], ["fr", "🇫🇷 FR"], ["de", "🇩🇪 DE"], ["es", "🇪🇸 ES"], ["ru", "🇷🇺 RU"], ["th", "🇹🇭 ไทย"]];
   var IDX = { vi: 0, en: 1, zh: 2, ko: 3 };
-  /* Ngôn ngữ bổ sung: nạp từ file lang-xx.js (dịch tự động từ tiếng Anh) */
+  /* Ngôn ngữ bổ sung: lưu trên máy chủ (thư mục lang/ là bản gốc) (dịch tự động từ tiếng Anh) */
   var PACKS = { ja: "tiếng Nhật", fr: "tiếng Pháp", de: "tiếng Đức", es: "tiếng Tây Ban Nha", ru: "tiếng Nga", th: "tiếng Thái" };
 
   /* Tên địa điểm hiển thị (dữ liệu đơn vẫn dùng tên tiếng Việt) */
@@ -243,9 +243,13 @@ window.XG_I18N = (function () {
     return "vi";   /* nhiều máy người Việt để giao diện tiếng Anh nên mặc định vẫn là tiếng Việt */
   }
   var LANG = detect(), I = IDX[LANG];
-  if (PACKS[LANG]) {   /* nạp file ngôn ngữ trước khi trang chạy; thiếu chữ nào thì dùng tiếng Anh */
+  var PACK_V = "1";   /* tăng số này khi sửa bản dịch để máy khách tải lại */
+  if (PACKS[LANG]) {   /* bản dịch lưu trên máy chủ Apps Script, nhớ lại trong máy khách; thiếu chữ nào thì dùng tiếng Anh */
     I = 1;
-    try { document.write('<script src="lang-' + LANG + '.js?v=1"><\/script>'); } catch (e) {}
+    var cached = null;
+    try { cached = localStorage.getItem("xg_pack_" + LANG + "_" + PACK_V); if (cached) window.XG_PACK = JSON.parse(cached); } catch (e) { cached = null; }
+    var api = (window.APP_CONFIG || {}).API_URL;
+    if (!cached && api) try { document.write('<script src="' + api + '?fn=lang&l=' + LANG + '&v=' + PACK_V + '"><\/script>'); } catch (e) {}
   }
   function P() { var p = window.XG_PACK; return p && p.lang === LANG ? p : null; }
 

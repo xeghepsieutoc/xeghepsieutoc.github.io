@@ -269,6 +269,11 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 .chbar{display:flex;gap:8px;align-items:flex-end}
 .chbar textarea{flex:1;resize:none;min-height:46px;max-height:120px}
 .chauto{font-size:12px;color:var(--g700);font-weight:600;text-align:center}
+.chx{position:absolute;top:10px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:#eef3f0;color:var(--ink);font-size:20px;font-weight:700;line-height:38px}
+.chsheet{position:relative}
+.chsheet h3{padding-right:48px}
+#chFab{position:fixed;right:14px;bottom:96px;z-index:45;width:58px;height:58px;border-radius:50%;border:0;background:var(--g700);color:#fff;font-size:26px;box-shadow:0 8px 22px rgba(15,122,72,.4)}
+#chFab .bd{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#fff;font-size:12px;font-weight:800;line-height:22px;padding:0 6px;box-shadow:0 0 0 2px #fff;animation:pop 1.2s ease-in-out infinite}
 .gps-ok a{color:var(--g700);font-weight:700}
 .hero-install{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:16px;background:#fff;border:1.5px solid var(--g500);color:var(--g800);text-align:left;box-shadow:0 6px 18px rgba(15,122,72,.12)}
 .hero-install .hi{width:42px;height:42px;border-radius:12px;flex:none}
@@ -575,10 +580,14 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
   </div>
 </div>
 
+<!-- Bong bóng chat thu nhỏ -->
+<button type="button" id="chFab" class="hidden" aria-label="Chat">💬<span class="bd hidden" id="chFabBd"></span></button>
+
 <!-- Sheet: nhắn tin tự dịch -->
 <div class="ov" id="ovChat">
   <div class="sheet chsheet" role="dialog" aria-modal="true">
     <div class="grab"></div>
+    <button type="button" class="chx" id="chMin" aria-label="Thu nhỏ">✕</button>
     <h3 id="chTitle">Nhắn tin với nhà xe</h3>
     <p class="sub" id="chSub" style="margin:0"></p>
     <div class="chlist" id="chList"></div>
@@ -981,7 +990,7 @@ function openChat(i){
   $("chTitle").textContent=T("chatTitle");$("chSub").textContent=T("chatSub",{c:x.code});
   $("chAuto").textContent=(x.lang&&x.lang!=="vi")?T("chatAuto"):"";$("chIn").placeholder=T("chatPh");$("chSend").textContent=T("chatSend");
   $("chList").innerHTML='<div class="chempty">'+esc(T("chatEmpty"))+'</div>';
-  openOv("ovChat");loadChat(true);
+  openOv("ovChat");$("chFab").classList.add("hidden");loadChat(true);
   clearInterval(chTimer);chTimer=setInterval(function(){if(!$("ovChat").classList.contains("show")){clearInterval(chTimer);return;}loadChat(false);},6000);
 }
 function drawChat(list){
@@ -1019,7 +1028,12 @@ $("qChat").addEventListener("click",function(){
   if(act.length===1||un.length===1){openChat(un.length===1?un[0]:act[0]);return;}
   goTo("histCard");});
 function updBadge(){var H=LS.get("xg_hist",[]),n=0;H.forEach(function(x){if(chatOk(x))n+=Math.max(0,(x.n||0)-(x.seen||0));});
-  var b=$("qChatBd");if(!b)return;b.textContent=n>9?"9+":n;b.classList.toggle("hidden",!n);}
+  var b=$("qChatBd");if(!b)return;b.textContent=n>9?"9+":n;b.classList.toggle("hidden",!n);
+  var f=$("chFabBd");f.textContent=b.textContent;f.classList.toggle("hidden",!n);
+  var conv=H.some(function(x){return chatOk(x)&&(x.n||x.seen);});
+  $("chFab").classList.toggle("hidden",!(conv||n)||$("ovChat").classList.contains("show"));}
+$("chMin").addEventListener("click",function(){closeOv("ovChat");updBadge();});
+$("chFab").addEventListener("click",function(){$("qChat").click();});
 $("doneChat").addEventListener("click",function(){closeOv("ovDone");openChat(0);});
 /* kiểm tra tin mới cho các chuyến của khách nước ngoài */
 function checkNewMsgs(){
@@ -1030,15 +1044,15 @@ function checkNewMsgs(){
       if(!j||!j.ok)return;var n=(j.data||[]).length,H2=LS.get("xg_hist",[]);if(!H2[i]||H2[i].code!==x.code)return;
       var old=H2[i].n||0;H2[i].n=n;LS.set("xg_hist",H2);renderHist();
       var last=(j.data||[])[n-1];
-      if(n>old&&n>(H2[i].seen||0)&&last&&last.dir==="out"&&!$("ovChat").classList.contains("show")){toast(T("chatNew"),5000);if(navigator.vibrate)navigator.vibrate([30,60,30]);}
+      if(n>old&&n>(H2[i].seen||0)&&last&&last.dir==="out"&&!$("ovChat").classList.contains("show")){toast(T("chatNew"),4000);if(navigator.vibrate)navigator.vibrate([30,60,30]);if(!document.querySelector(".ov.show"))openChat(i);}
     }).catch(function(){});});
 }
-var chPoll=null;function startPoll(){if(chPoll)return;chPoll=setInterval(checkNewMsgs,30000);}
+var chPoll=null;function startPoll(){if(chPoll)return;chPoll=setInterval(checkNewMsgs,15000);}
 if(LS.get("xg_hist",[]).some(chatOk)){setTimeout(checkNewMsgs,1500);startPoll();}
 
 /* ---------- Overlays ---------- */
 function openOv(id){$(id).classList.add("show");document.body.style.overflow="hidden";}
-function closeOv(id){$(id).classList.remove("show");if(!document.querySelector(".ov.show"))document.body.style.overflow="";}
+function closeOv(id){$(id).classList.remove("show");if(!document.querySelector(".ov.show"))document.body.style.overflow="";if(id==="ovChat"&&typeof updBadge==="function")updBadge();}
 [].forEach.call(document.querySelectorAll(".ov"),function(ov){
   ov.addEventListener("click",function(e){if(e.target===ov||e.target.closest("[data-close]"))closeOv(ov.id);});
 });
