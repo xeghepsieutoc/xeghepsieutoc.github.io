@@ -35,7 +35,7 @@ window.APP_CONFIG = {
   FIRST_HOUR: 0,        // chuyến sớm nhất 00:00 (24/24)
   LAST_HOUR: 23,        // 23 = chạy tới 23:30 (24/24)
   STEP_MINUTES: 30,     // mỗi 30 phút 1 khung giờ
-  MIN_LEAD_MINUTES: 45, // khách phải đặt trước ít nhất 45 phút
+  MIN_LEAD_MINUTES: 15, // khách phải đặt trước ít nhất 15 phút
   MAX_DAYS_AHEAD: 30,   // cho đặt trước tối đa 30 ngày
   MAX_SEATS_GHEP: 6,    // số ghế tối đa 1 lần đặt ghép
 
