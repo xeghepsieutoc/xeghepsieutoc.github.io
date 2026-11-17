@@ -110,6 +110,16 @@ window.XG_I18N = (function () {
     cancelling: ["Đang huỷ…", "Cancelling…", "取消中…", "취소 중…"],
     pickReason: ["Vui lòng chọn hoặc nhập lý do huỷ", "Please choose or type a reason", "请选择或填写取消原因", "취소 사유를 선택하거나 입력하세요"],
     cancelOk: ["✔ Đã huỷ chuyến – nhà xe đã nhận được thông báo", "✔ Booking cancelled – we have been notified", "✔ 已取消，车行已收到通知", "✔ 예약이 취소되었고 업체에 전달되었습니다"],
+    /* Nhắn tin tự dịch */
+    chatBtn: ["💬 Nhắn nhà xe", "💬 Message us", "💬 发消息", "💬 메시지"],
+    chatTitle: ["Nhắn tin với nhà xe", "Chat with the driver team", "与车行聊天", "차량 업체와 채팅"],
+    chatSub: ["Mã đặt chỗ {c}", "Booking {c} · write in English – we translate automatically", "预订 {c} · 用中文写即可，自动翻译", "예약 {c} · 한국어로 쓰시면 자동 번역됩니다"],
+    chatPh: ["Nhập tin nhắn…", "Type a message… (e.g. I'm at the hotel lobby)", "输入消息…（如：我在酒店大堂）", "메시지 입력… (예: 호텔 로비에 있어요)"],
+    chatSend: ["Gửi", "Send", "发送", "보내기"],
+    chatEmpty: ["Chưa có tin nhắn. Hãy gửi điểm đón, số phòng khách sạn hoặc câu hỏi của bạn.", "No messages yet. Send your exact pick-up point, hotel room or any question – we reply in your language.", "暂无消息。请发送具体上车地点、酒店房号或您的问题，我们会用中文回复。", "아직 메시지가 없습니다. 정확한 픽업 장소, 호텔 객실 번호나 질문을 보내 주세요 – 한국어로 답해 드립니다."],
+    chatThem: ["Nhà xe", "Driver team", "车行", "차량 업체"],
+    chatNew: ["💬 Nhà xe vừa nhắn tin cho bạn", "💬 New message from the driver team", "💬 车行给您发了新消息", "💬 차량 업체에서 새 메시지가 왔습니다"],
+    chatAuto: ["🌐 Tin nhắn được dịch tự động", "🌐 Messages are translated automatically", "🌐 消息自动翻译", "🌐 메시지는 자동 번역됩니다"],
     /* Ghi chú gửi về nhà xe (tiếng Việt) */
     noteLang: ["", "🌐 Khách nước ngoài – nói tiếng Anh, nhắn tin xác nhận điểm đón", "🌐 Khách nước ngoài – nói tiếng Trung, nhắn tin xác nhận điểm đón", "🌐 Khách nước ngoài – nói tiếng Hàn, nhắn tin xác nhận điểm đón"]
   };

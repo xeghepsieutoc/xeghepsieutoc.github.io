@@ -248,6 +248,20 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 .gps-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;padding:10px 12px;border-radius:12px;border:1.5px dashed var(--g500);background:var(--g50);color:var(--g800);font-weight:700;font-size:14px}
 .gps-btn:disabled{opacity:.7}
 .gps-ok{font-size:12.5px;color:var(--g800);margin-top:6px;line-height:1.4}
+.chbtn{flex:none;border:1.5px solid var(--g500);color:var(--g800);background:var(--g50);border-radius:10px;padding:6px 10px;font-weight:700;font-size:12.5px;position:relative}
+.chbtn .bd{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;line-height:18px;text-align:center;padding:0 4px}
+.chsheet{display:flex;flex-direction:column;height:86vh}
+.chlist{flex:1;overflow:auto;background:#f2f5f3;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;margin:8px 0 10px}
+.chempty{color:var(--mute);font-size:13.5px;text-align:center;margin:auto 8px;line-height:1.5}
+.cm{max-width:82%;padding:9px 12px 16px;border-radius:16px;font-size:14.5px;line-height:1.4;position:relative;word-wrap:break-word;min-width:64px}
+.cm.me{align-self:flex-end;background:var(--g700);color:#fff;border-bottom-right-radius:5px}
+.cm.them{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:5px}
+.cm small{display:block;font-size:11px;font-weight:700;color:var(--g700);margin-bottom:2px}
+.cm i{position:absolute;right:10px;bottom:3px;font-size:10px;font-style:normal;opacity:.7}
+.cm.pend{opacity:.6}
+.chbar{display:flex;gap:8px;align-items:flex-end}
+.chbar textarea{flex:1;resize:none;min-height:46px;max-height:120px}
+.chauto{font-size:12px;color:var(--g700);font-weight:600;text-align:center}
 .gps-ok a{color:var(--g700);font-weight:700}
 .hero-install{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:16px;background:#fff;border:1.5px solid var(--g500);color:var(--g800);text-align:left;box-shadow:0 6px 18px rgba(15,122,72,.12)}
 .hero-install .hi{width:42px;height:42px;border-radius:12px;flex:none}
@@ -474,6 +488,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
     <div class="ibox g hidden" id="foreignNote2" style="text-align:left;line-height:1.55;margin:0 0 6px"></div>
     <div class="acts">
       <a class="btn btn-p btn-w" id="doneCall" href="#">📞 Gọi tổng đài ngay</a>
+      <button class="btn btn-o btn-w hidden" id="doneChat">💬</button>
       <button class="btn btn-o btn-w" data-close>Đặt thêm chuyến khác</button>
     </div>
   </div>
@@ -543,6 +558,18 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
       <button class="btn btn-o" data-close id="cxKeep">Không huỷ nữa</button>
       <button class="btn btn-r" id="cxOk">Xác nhận huỷ chuyến</button>
     </div>
+  </div>
+</div>
+
+<!-- Sheet: nhắn tin tự dịch -->
+<div class="ov" id="ovChat">
+  <div class="sheet chsheet" role="dialog" aria-modal="true">
+    <div class="grab"></div>
+    <h3 id="chTitle">Nhắn tin với nhà xe</h3>
+    <p class="sub" id="chSub" style="margin:0"></p>
+    <div class="chlist" id="chList"></div>
+    <div class="chauto" id="chAuto"></div>
+    <div class="chbar"><textarea class="inp" id="chIn" rows="1" maxlength="600"></textarea><button class="btn btn-p" id="chSend" style="padding:12px 18px">Gửi</button></div>
   </div>
 </div>
 
@@ -867,10 +894,11 @@ function done(code,demo){
   $("doneCode").textContent=code;
   $("doneMsg").textContent=demo?"(Chế độ DEMO – đơn chưa được gửi đi. Gắn API_URL trong config.js để nhận Telegram.)":T("doneMsg",{p:pending.phone});
   var h=LS.get("xg_hist",[]);
-  h.unshift({code:code,from:pending.from,to:pending.to,fk:state.from,tk:state.to,sv:state.svc,date:pending.date,time:pending.time,svc:pending.serviceName,seats:pending.seats,phone:pending.phone,at:Date.now()});
+  h.unshift({code:code,from:pending.from,to:pending.to,fk:state.from,tk:state.to,sv:state.svc,date:pending.date,time:pending.time,svc:pending.serviceName,seats:pending.seats,phone:pending.phone,lang:L.lang,at:Date.now()});
   LS.set("xg_hist",h.slice(0,10));renderHist();
   rememberAddr("pickup",pending.pickup.replace(/ 📍-?[\d.]+,-?[\d.]+$/,""));rememberAddr("dropoff",pending.dropoff);setGps("");
   $("pickup").value="";$("dropoff").value="";$("note").value="";renderAddr("pickup");renderAddr("dropoff");
+  $("doneChat").classList.toggle("hidden",!L.i||demo);$("doneChat").textContent=T("chatBtn");if(L.i&&!demo)startPoll();
   openOv("ovDone");
   if(navigator.vibrate)navigator.vibrate([20,40,20]);
 }
@@ -891,7 +919,7 @@ function renderHist(){
     var canCancel=!x.cancelled&&tripTime(x)>Date.now();
     var from=x.fk?pl(x.fk):x.from,to=x.tk?pl(x.tk):x.to,sv=x.sv?svcT(x.sv):x.svc;
     return '<div class="hitem"><div class="hr"><b>'+esc(from)+" → "+esc(to)+'</b><small>'+esc(x.time)+" · "+esc(x.date)+" · "+esc(sv)+(x.seats?" · "+x.seats+" "+T("seats"):"")+(x.cancelled?'<span class="tg">'+T("cancelled")+'</span>':"")+'</small></div>'+
-      '<div class="hx"><code>'+esc(x.code)+'</code>'+(canCancel?'<button type="button" class="cbtn" data-cx="'+i+'">'+T("cancelBtn")+'</button>':"")+'</div></div>';}).join("");
+      '<div class="hx"><code>'+esc(x.code)+'</code>'+(chatOk(x)?'<button type="button" class="chbtn" data-ch="'+i+'">'+T("chatBtn")+((x.n||0)>(x.seen||0)?'<span class="bd">'+((x.n||0)-(x.seen||0))+'</span>':"")+'</button>':"")+(canCancel?'<button type="button" class="cbtn" data-cx="'+i+'">'+T("cancelBtn")+'</button>':"")+'</div></div>';}).join("");
 }
 /* ---------- Huỷ chuyến ---------- */
 var cxIdx=-1,cxR=-1;
@@ -923,6 +951,63 @@ $("cxOk").addEventListener("click",function(){
     .then(function(j){if(j&&j.ok)finish();else{b.disabled=false;b.textContent=T("confirmCancel");toast("⚠️ "+(j&&j.error||T("netErr")),4000);}})
     .catch(function(){b.disabled=false;b.textContent=T("confirmCancel");toast("⚠️ "+T("netErr")+T("failTail"),4500);});
 });
+
+/* ---------- Nhắn tin tự dịch (khách nước ngoài) ---------- */
+var chIdx=-1,chTimer=null,chBusy=false;
+function chatOk(x){return x&&x.lang&&x.lang!=="vi"&&!x.cancelled&&tripTime(x)>Date.now()-2*864e5;}
+function apiPost(o){return fetch(C.API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(o)}).then(function(r){return r.json();});}
+function phoneOf(x){return x.phone||(LS.get("xg_profile",{}).phone)||"";}
+function openChat(i){
+  var x=LS.get("xg_hist",[])[i];if(!x)return;chIdx=i;
+  $("chTitle").textContent=T("chatTitle");$("chSub").textContent=T("chatSub",{c:x.code});
+  $("chAuto").textContent=T("chatAuto");$("chIn").placeholder=T("chatPh");$("chSend").textContent=T("chatSend");
+  $("chList").innerHTML='<div class="chempty">'+esc(T("chatEmpty"))+'</div>';
+  openOv("ovChat");loadChat(true);
+  clearInterval(chTimer);chTimer=setInterval(function(){if(!$("ovChat").classList.contains("show")){clearInterval(chTimer);return;}loadChat(false);},6000);
+}
+function drawChat(list){
+  var box=$("chList"),atEnd=box.scrollHeight-box.scrollTop-box.clientHeight<60;
+  if(!list.length){box.innerHTML='<div class="chempty">'+esc(T("chatEmpty"))+'</div>';return;}
+  box.innerHTML=list.map(function(m){var me=m.dir==="in";return '<div class="cm '+(me?"me":"them")+'">'+(me?"":'<small>'+esc(T("chatThem"))+'</small>')+esc(m.text).replace(/\n/g,"<br>")+'<i>'+esc(String(m.at).slice(11,16))+'</i></div>';}).join("");
+  if(atEnd||chBusy)box.scrollTop=box.scrollHeight;
+}
+function loadChat(first){
+  var H=LS.get("xg_hist",[]),x=H[chIdx];if(!x||!C.API_URL)return;
+  apiPost({action:"msgs",code:x.code,phone:phoneOf(x)}).then(function(j){
+    if(!j||!j.ok)return;var list=j.data||[];
+    drawChat(list);if(first)$("chList").scrollTop=1e9;
+    var H2=LS.get("xg_hist",[]);if(H2[chIdx]){H2[chIdx].seen=list.length;LS.set("xg_hist",H2);renderHist();}
+  }).catch(function(){});
+}
+function sendChat(){
+  var H=LS.get("xg_hist",[]),x=H[chIdx],txt=$("chIn").value.trim();if(!x||!txt||chBusy)return;
+  chBusy=true;$("chSend").disabled=true;
+  var box=$("chList");if(box.querySelector(".chempty"))box.innerHTML="";
+  box.insertAdjacentHTML("beforeend",'<div class="cm me pend">'+esc(txt).replace(/\n/g,"<br>")+'<i>…</i></div>');box.scrollTop=box.scrollHeight;
+  $("chIn").value="";
+  apiPost({action:"msg",code:x.code,phone:phoneOf(x),text:txt,lang:x.lang||L.lang}).then(function(j){
+    chBusy=false;$("chSend").disabled=false;
+    if(j&&j.ok)loadChat(false);else{toast("⚠️ "+(j&&j.error||T("netErr")),4000);$("chIn").value=txt;loadChat(false);}
+  }).catch(function(){chBusy=false;$("chSend").disabled=false;$("chIn").value=txt;toast("⚠️ "+T("netErr"),4000);});
+}
+$("chSend").addEventListener("click",sendChat);
+$("chIn").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat();}});
+$("hist").addEventListener("click",function(e){var b=e.target.closest("[data-ch]");if(b)openChat(+b.dataset.ch);});
+$("doneChat").addEventListener("click",function(){closeOv("ovDone");openChat(0);});
+/* kiểm tra tin mới cho các chuyến của khách nước ngoài */
+function checkNewMsgs(){
+  if(!C.API_URL||document.hidden)return;
+  var H=LS.get("xg_hist",[]);
+  H.forEach(function(x,i){if(!chatOk(x))return;
+    apiPost({action:"msgs",code:x.code,phone:phoneOf(x)}).then(function(j){
+      if(!j||!j.ok)return;var n=(j.data||[]).length,H2=LS.get("xg_hist",[]);if(!H2[i]||H2[i].code!==x.code)return;
+      var old=H2[i].n||0;H2[i].n=n;LS.set("xg_hist",H2);renderHist();
+      var last=(j.data||[])[n-1];
+      if(n>old&&n>(H2[i].seen||0)&&last&&last.dir==="out"&&!$("ovChat").classList.contains("show")){toast(T("chatNew"),5000);if(navigator.vibrate)navigator.vibrate([30,60,30]);}
+    }).catch(function(){});});
+}
+var chPoll=null;function startPoll(){if(chPoll)return;chPoll=setInterval(checkNewMsgs,30000);}
+if(LS.get("xg_hist",[]).some(chatOk)){setTimeout(checkNewMsgs,1500);startPoll();}
 
 /* ---------- Overlays ---------- */
 function openOv(id){$(id).classList.add("show");document.body.style.overflow="hidden";}
