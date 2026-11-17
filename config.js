@@ -17,6 +17,7 @@ window.APP_CONFIG = {
   HOTLINE_LABEL: "Hotline hỗ trợ ứng dụng",
   POSTER_FOOTER: "APP ĐẶT XE SIÊU TỐC",
   POSTER_FOOTER_SUB: "Đặt xe trực tuyến 24/7",
+  WEBSITE: "xeghepsieutoc.vn",   // địa chỉ web in trên poster
 
   /* Nhận đơn – sửa nhanh trong trang quản lý admin.html */
   OPEN: true,

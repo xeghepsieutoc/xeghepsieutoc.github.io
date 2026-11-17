@@ -239,6 +239,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13.5px}
         <label class="fl"><span>Số Zalo</span><input class="f" id="c_ZALO" inputmode="tel"></label>
         <label class="fl"><span>Chữ chân poster QR (dòng lớn)</span><input class="f" id="c_POSTER_FOOTER"></label>
         <label class="fl"><span>Chữ chân poster QR (dòng nhỏ)</span><input class="f" id="c_POSTER_FOOTER_SUB"></label>
+        <label class="fl"><span>Địa chỉ web in trên poster</span><input class="f" id="c_WEBSITE" placeholder="VD: xeghepsieutoc.vn"></label>
       </div>
     </div>
     <div class="card">
@@ -622,7 +623,7 @@ $("plAdd").onclick=function(){askText("Thêm điểm đón / trả",[{label:"Tê
 $("rtAdd").onclick=function(){if(EDIT.PLACES.length<2)return;EDIT.ROUTES.push({a:EDIT.PLACES[0].key,b:EDIT.PLACES[1].key,ghep:0,xe5:0,xe7:0});renderPrices();var rows=$("rtBody").rows;rows[rows.length-1].scrollIntoView({block:"center"});};
 
 /* ================= CÀI ĐẶT ================= */
-var TXT=["CLOSED_MSG","NOTICE","BRAND","SLOGAN","TAGLINE","HOTLINE_LABEL","HOTLINE","HOTLINE_DISPLAY","ZALO","POSTER_FOOTER","POSTER_FOOTER_SUB"],NUMS=["FIRST_HOUR","LAST_HOUR","STEP_MINUTES","MIN_LEAD_MINUTES","MAX_DAYS_AHEAD","MAX_SEATS_GHEP","CAR_SEATS"];
+var TXT=["CLOSED_MSG","NOTICE","BRAND","SLOGAN","TAGLINE","HOTLINE_LABEL","HOTLINE","HOTLINE_DISPLAY","ZALO","POSTER_FOOTER","POSTER_FOOTER_SUB","WEBSITE"],NUMS=["FIRST_HOUR","LAST_HOUR","STEP_MINUTES","MIN_LEAD_MINUTES","MAX_DAYS_AHEAD","MAX_SEATS_GHEP","CAR_SEATS"];
 function renderSettings(){
   $("c_OPEN").checked=EDIT.OPEN!==false;
   TXT.forEach(function(k){$("c_"+k).value=EDIT[k]==null?"":EDIT[k];});
