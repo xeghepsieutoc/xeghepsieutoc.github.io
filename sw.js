@@ -25,7 +25,7 @@ self.addEventListener("fetch", e => {
     return;
   }
   // Trang & config: lấy mạng trước (giá luôn mới), mất mạng thì dùng bản lưu
-  e.respondWith(fetch(req).then(res => {
+  e.respondWith(fetch(req, { cache: "no-cache" }).then(res => {   // luôn hỏi lại GitHub xem có bản mới
     if (res.ok) { const cp = res.clone(); caches.open(CACHE).then(c => c.put(req, cp)); }
     return res;
   }).catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || caches.match("./index.html"))));
