@@ -34,6 +34,7 @@ window.XG_I18N = (function () {
     dayafter: ["Ngày kia", "In 2 days", "后天", "모레"],
     otherday: ["Ngày khác", "Other date", "其他日期", "다른 날짜"],
     pick: ["📅 Chọn", "📅 Pick", "📅 选择", "📅 선택"],
+    g0: ["🌃 Đêm khuya", "🌃 Late night", "🌃 深夜", "🌃 심야"],
     g1: ["🌅 Sáng sớm", "🌅 Early morning", "🌅 清晨", "🌅 이른 아침"],
     g2: ["☀️ Buổi sáng", "☀️ Morning", "☀️ 上午", "☀️ 오전"],
     g3: ["🌤️ Buổi chiều", "🌤️ Afternoon", "🌤️ 下午", "🌤️ 오후"],

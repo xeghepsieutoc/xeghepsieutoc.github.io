@@ -32,8 +32,8 @@ window.APP_CONFIG = {
   API_URL: "https://script.google.com/macros/s/AKfycbzNV1zZrskPx1unvRlMA0PvMSbncIx2bSiu0m_hJBHKb3ah-0F0NsbePIRKkcLx6Thg/exec",
 
   /* Giờ xuất bến có thể chọn */
-  FIRST_HOUR: 4,        // chuyến sớm nhất 04:00
-  LAST_HOUR: 22,        // chuyến muộn nhất 22:00
+  FIRST_HOUR: 0,        // chuyến sớm nhất 00:00 (24/24)
+  LAST_HOUR: 23,        // 23 = chạy tới 23:30 (24/24)
   STEP_MINUTES: 30,     // mỗi 30 phút 1 khung giờ
   MIN_LEAD_MINUTES: 45, // khách phải đặt trước ít nhất 45 phút
   MAX_DAYS_AHEAD: 30,   // cho đặt trước tối đa 30 ngày

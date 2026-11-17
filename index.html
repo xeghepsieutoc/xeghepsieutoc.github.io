@@ -668,7 +668,8 @@ function today0(){var d=new Date();d.setHours(0,0,0,0);return d;}
 function addDays(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x;}
 function slotsFor(date){
   var out=[],now=Date.now()+C.MIN_LEAD_MINUTES*60000;
-  for(var m=C.FIRST_HOUR*60;m<=C.LAST_HOUR*60;m+=C.STEP_MINUTES){
+  var endM=Number(C.LAST_HOUR)>=23?24*60-1:C.LAST_HOUR*60; // 23 = chạy tới 23:59 (24/24)
+  for(var m=C.FIRST_HOUR*60;m<=endM;m+=C.STEP_MINUTES){
     var d=new Date(date);d.setHours(0,m,0,0);
     out.push({t:pad(Math.floor(m/60))+":"+pad(m%60),m:m,ok:d.getTime()>=now});
   }
@@ -699,7 +700,7 @@ function renderTimes(){
   // auto-chuyển sang ngày mai nếu hôm nay hết chuyến
   if(state.dateIdx===0&&!s.some(function(x){return x.ok;})){state.dateIdx=1;state.date=addDays(today0(),1);renderDates();s=slotsFor(state.date);toast(T("outToday"));}
   if(state.time&&!s.some(function(x){return x.t===state.time&&x.ok;})) state.time=null;
-  var groups=[[T("g1"),0,600],[T("g2"),600,720],[T("g3"),720,1080],[T("g4"),1080,1440]];
+  var groups=[[T("g0"),0,240],[T("g1"),240,600],[T("g2"),600,720],[T("g3"),720,1080],[T("g4"),1080,1440]];
   var html="";
   groups.forEach(function(g){
     var items=s.filter(function(x){return x.m>=g[1]&&x.m<g[2];});
