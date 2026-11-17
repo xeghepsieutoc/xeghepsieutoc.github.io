@@ -268,7 +268,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 .cm.pend{opacity:.6}
 .chbar{display:flex;gap:8px;align-items:flex-end}
 .chbar textarea{flex:1;resize:none;min-height:46px;max-height:120px}
-.chauto{font-size:12px;color:var(--g700);font-weight:600;text-align:center}
+.chauto{font-size:13px;color:var(--g800);font-weight:700;text-align:center;background:var(--g50);border-radius:10px;padding:7px 10px;margin-bottom:8px}
 .chx{position:absolute;top:10px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:#eef3f0;color:var(--ink);font-size:20px;font-weight:700;line-height:38px}
 .chsheet{position:relative}
 .chsheet h3{padding-right:48px}
@@ -592,6 +592,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
     <p class="sub" id="chSub" style="margin:0"></p>
     <div class="chlist" id="chList"></div>
     <div class="chauto" id="chAuto"></div>
+    <input class="inp hidden" id="chContact" maxlength="80" style="margin:0 0 8px;padding:10px 12px;font-size:14px">
     <div class="chbar"><textarea class="inp" id="chIn" rows="1" maxlength="600"></textarea><button class="btn btn-p" id="chSend" style="padding:12px 18px">Gửi</button></div>
   </div>
 </div>
@@ -980,15 +981,26 @@ $("cxOk").addEventListener("click",function(){
     .catch(function(){b.disabled=false;b.textContent=T("confirmCancel");toast("⚠️ "+T("netErr")+T("failTail"),4500);});
 });
 
-/* ---------- Nhắn tin tự dịch (khách nước ngoài) ---------- */
+/* ---------- Nhắn tin với nhà xe (tự dịch 2 chiều) ---------- */
+/* i >= 0: chuyến trong lịch sử; i = -1: khách chưa đặt chuyến (mã KH…) */
 var chIdx=-1,chTimer=null,chBusy=false;
 function chatOk(x){return x&&!x.cancelled&&tripTime(x)>Date.now()-2*864e5;}
 function apiPost(o){return fetch(C.API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(o)}).then(function(r){return r.json();});}
 function phoneOf(x){return x.phone||(LS.get("xg_profile",{}).phone)||"";}
+function guest(make){var g=LS.get("xg_guest",null);
+  if(!g&&make){var c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",k="KH";for(var i=0;i<8;i++)k+=c[Math.floor(Math.random()*c.length)];g={code:k,lang:L.lang,n:0,seen:0,at:Date.now()};LS.set("xg_guest",g);}
+  return g;}
+function getT(i){return i===-1?guest(false):LS.get("xg_hist",[])[i];}
+function setT(i,f){if(i===-1){var g=guest(false);if(g){f(g);LS.set("xg_guest",g);}}else{var H=LS.get("xg_hist",[]);if(H[i]){f(H[i]);LS.set("xg_hist",H);}}}
+function guestOk(){var g=guest(false);return !!(g&&Date.now()-(g.at||0)<14*864e5);}
 function openChat(i){
-  var x=LS.get("xg_hist",[])[i];if(!x)return;chIdx=i;
-  $("chTitle").textContent=T("chatTitle");$("chSub").textContent=T("chatSub",{c:x.code});
-  $("chAuto").textContent=(x.lang&&x.lang!=="vi")?T("chatAuto"):"";$("chIn").placeholder=T("chatPh");$("chSend").textContent=T("chatSend");
+  if(i===-1)guest(true);
+  var x=getT(i);if(!x)return;chIdx=i;
+  $("chTitle").textContent=T("chatTitle");$("chSub").textContent=i===-1?T("chatGuestSub"):T("chatSub",{c:x.code});
+  $("chAuto").textContent=T("chatLang");$("chIn").placeholder=T("chatPh");$("chSend").textContent=T("chatSend");
+  var pf=LS.get("xg_profile",{});
+  $("chContact").classList.toggle("hidden",i!==-1);$("chContact").placeholder=T("chatNamePh");
+  if(i===-1&&!$("chContact").value)$("chContact").value=x.contact||((pf.name||"")+(pf.phone?" · "+pf.phone:""));
   $("chList").innerHTML='<div class="chempty">'+esc(T("chatEmpty"))+'</div>';
   openOv("ovChat");$("chFab").classList.add("hidden");loadChat(true);
   clearInterval(chTimer);chTimer=setInterval(function(){if(!$("ovChat").classList.contains("show")){clearInterval(chTimer);return;}loadChat(false);},6000);
@@ -1000,55 +1012,57 @@ function drawChat(list){
   if(atEnd||chBusy)box.scrollTop=box.scrollHeight;
 }
 function loadChat(first){
-  var H=LS.get("xg_hist",[]),x=H[chIdx];if(!x||!C.API_URL)return;
-  apiPost({action:"msgs",code:x.code,phone:phoneOf(x)}).then(function(j){
+  var x=getT(chIdx),i0=chIdx;if(!x||!C.API_URL)return;
+  apiPost({action:"msgs",code:x.code,phone:chIdx===-1?"":phoneOf(x)}).then(function(j){
     if(!j||!j.ok)return;var list=j.data||[];
     drawChat(list);if(first)$("chList").scrollTop=1e9;
-    var H2=LS.get("xg_hist",[]);if(H2[chIdx]){H2[chIdx].seen=list.length;LS.set("xg_hist",H2);renderHist();}
+    setT(i0,function(o){o.seen=list.length;o.n=Math.max(o.n||0,list.length);});renderHist();
   }).catch(function(){});
 }
 function sendChat(){
-  var H=LS.get("xg_hist",[]),x=H[chIdx],txt=$("chIn").value.trim();if(!x||!txt||chBusy)return;
+  var x=getT(chIdx),txt=$("chIn").value.trim(),i0=chIdx;if(!x||!txt||chBusy)return;
+  var contact=i0===-1?$("chContact").value.trim().slice(0,80):"";
+  if(i0===-1)setT(-1,function(o){o.contact=contact;o.lang=L.lang;});
   chBusy=true;$("chSend").disabled=true;
   var box=$("chList");if(box.querySelector(".chempty"))box.innerHTML="";
   box.insertAdjacentHTML("beforeend",'<div class="cm me pend">'+esc(txt).replace(/\n/g,"<br>")+'<i>…</i></div>');box.scrollTop=box.scrollHeight;
   $("chIn").value="";
-  apiPost({action:"msg",code:x.code,phone:phoneOf(x),text:txt,lang:x.lang||"vi"}).then(function(j){
-    chBusy=false;$("chSend").disabled=false;
+  apiPost({action:"msg",code:x.code,phone:i0===-1?"":phoneOf(x),name:contact,text:txt,lang:i0===-1?L.lang:(x.lang||"vi")}).then(function(j){
+    chBusy=false;$("chSend").disabled=false;startPoll();
     if(j&&j.ok)loadChat(false);else{toast("⚠️ "+(j&&j.error||T("netErr")),4000);$("chIn").value=txt;loadChat(false);}
   }).catch(function(){chBusy=false;$("chSend").disabled=false;$("chIn").value=txt;toast("⚠️ "+T("netErr"),4000);});
 }
 $("chSend").addEventListener("click",sendChat);
 $("chIn").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat();}});
 $("hist").addEventListener("click",function(e){var b=e.target.closest("[data-ch]");if(b)openChat(+b.dataset.ch);});
+function chatTargets(){var H=LS.get("xg_hist",[]),t=[];H.forEach(function(x,i){if(chatOk(x))t.push(i);});var g=guest(false);if(guestOk()&&(g.n||g.seen||!t.length))t.push(-1);return t;}
+function unread(i){var x=getT(i);return x?Math.max(0,(x.n||0)-(x.seen||0)):0;}
 $("qChat").addEventListener("click",function(){
-  var H=LS.get("xg_hist",[]),act=[];H.forEach(function(x,i){if(chatOk(x))act.push(i);});
-  if(!act.length){toast(T("noChat"),4500);return;}
-  var un=act.filter(function(i){return (H[i].n||0)>(H[i].seen||0);});
-  if(act.length===1||un.length===1){openChat(un.length===1?un[0]:act[0]);return;}
-  goTo("histCard");});
-function updBadge(){var H=LS.get("xg_hist",[]),n=0;H.forEach(function(x){if(chatOk(x))n+=Math.max(0,(x.n||0)-(x.seen||0));});
+  var t=chatTargets();if(!t.length){openChat(-1);return;}
+  var un=t.filter(function(i){return unread(i)>0;});
+  if(un.length)openChat(un[0]);else if(t.length===1)openChat(t[0]);else{var real=t.filter(function(i){return i>=0;});if(real.length===1)openChat(real[0]);else goTo("histCard");}
+});
+function updBadge(){var n=0;chatTargets().forEach(function(i){n+=unread(i);});
   var b=$("qChatBd");if(!b)return;b.textContent=n>9?"9+":n;b.classList.toggle("hidden",!n);
   var f=$("chFabBd");f.textContent=b.textContent;f.classList.toggle("hidden",!n);
-  var conv=H.some(function(x){return chatOk(x)&&(x.n||x.seen);});
+  var conv=chatTargets().some(function(i){var x=getT(i);return x&&(x.n||x.seen);});
   $("chFab").classList.toggle("hidden",!(conv||n)||$("ovChat").classList.contains("show"));}
 $("chMin").addEventListener("click",function(){closeOv("ovChat");updBadge();});
 $("chFab").addEventListener("click",function(){$("qChat").click();});
 $("doneChat").addEventListener("click",function(){closeOv("ovDone");openChat(0);});
-/* kiểm tra tin mới cho các chuyến của khách nước ngoài */
+/* kiểm tra tin mới → tự bật khung chat */
 function checkNewMsgs(){
   if(!C.API_URL||document.hidden)return;
-  var H=LS.get("xg_hist",[]);
-  H.forEach(function(x,i){if(!chatOk(x))return;
-    apiPost({action:"msgs",code:x.code,phone:phoneOf(x)}).then(function(j){
-      if(!j||!j.ok)return;var n=(j.data||[]).length,H2=LS.get("xg_hist",[]);if(!H2[i]||H2[i].code!==x.code)return;
-      var old=H2[i].n||0;H2[i].n=n;LS.set("xg_hist",H2);renderHist();
-      var last=(j.data||[])[n-1];
-      if(n>old&&n>(H2[i].seen||0)&&last&&last.dir==="out"&&!$("ovChat").classList.contains("show")){toast(T("chatNew"),4000);if(navigator.vibrate)navigator.vibrate([30,60,30]);if(!document.querySelector(".ov.show"))openChat(i);}
+  chatTargets().forEach(function(i){var x=getT(i);if(!x)return;
+    apiPost({action:"msgs",code:x.code,phone:i===-1?"":phoneOf(x)}).then(function(j){
+      if(!j||!j.ok)return;var list=j.data||[],n=list.length,y=getT(i);if(!y||y.code!==x.code)return;
+      var old=y.n||0;setT(i,function(o){o.n=n;});renderHist();
+      var last=list[n-1];
+      if(n>old&&n>(y.seen||0)&&last&&last.dir==="out"&&!$("ovChat").classList.contains("show")){toast(T("chatNew"),4000);if(navigator.vibrate)navigator.vibrate([30,60,30]);if(!document.querySelector(".ov.show"))openChat(i);}
     }).catch(function(){});});
 }
 var chPoll=null;function startPoll(){if(chPoll)return;chPoll=setInterval(checkNewMsgs,15000);}
-if(LS.get("xg_hist",[]).some(chatOk)){setTimeout(checkNewMsgs,1500);startPoll();}
+if(chatTargets().some(function(i){var x=getT(i);return i>=0||(x&&(x.n||x.seen));})){setTimeout(checkNewMsgs,1500);startPoll();}
 
 /* ---------- Overlays ---------- */
 function openOv(id){$(id).classList.add("show");document.body.style.overflow="hidden";}

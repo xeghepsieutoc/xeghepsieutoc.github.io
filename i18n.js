@@ -125,6 +125,9 @@ window.XG_I18N = (function () {
     chatPh: ["Nhập tin nhắn…", "Type a message… (e.g. I'm at the hotel lobby)", "输入消息…（如：我在酒店大堂）", "메시지 입력… (예: 호텔 로비에 있어요)"],
     chatSend: ["Gửi", "Send", "发送", "보내기"],
     chatEmpty: ["Chưa có tin nhắn. Hãy gửi điểm đón, số phòng khách sạn hoặc câu hỏi của bạn.", "No messages yet. Send your exact pick-up point, hotel room or any question – we reply in your language.", "暂无消息。请发送具体上车地点、酒店房号或您的问题，我们会用中文回复。", "아직 메시지가 없습니다. 정확한 픽업 장소, 호텔 객실 번호나 질문을 보내 주세요 – 한국어로 답해 드립니다."],
+    chatLang: ["💬 Nhắn tin trực tiếp với nhà xe – trả lời trong ít phút", "🌐 Please write in your own language – we will reply in your language", "🌐 请用您的母语留言，我们会用您的语言回复", "🌐 모국어로 편하게 보내 주세요 – 고객님의 언어로 답장해 드립니다"],
+    chatGuestSub: ["Hỏi nhà xe bất cứ điều gì: giá, giờ chạy, điểm đón…", "Ask us anything: fares, times, pick-up points…", "有任何问题都可以问我们：价格、时间、上车地点…", "요금, 시간, 픽업 장소 등 무엇이든 물어보세요…"],
+    chatNamePh: ["Tên / số điện thoại của bạn (không bắt buộc)", "Your name / phone or WhatsApp (optional)", "您的姓名 / 电话或微信（可选）", "이름 / 전화번호 또는 카카오톡 (선택)"],
     chatThem: ["Nhà xe", "Driver team", "车行", "차량 업체"],
     chatNew: ["💬 Nhà xe vừa nhắn tin cho bạn", "💬 New message from the driver team", "💬 车行给您发了新消息", "💬 차량 업체에서 새 메시지가 왔습니다"],
     chatAuto: ["🌐 Tin nhắn được dịch tự động", "🌐 Messages are translated automatically", "🌐 消息自动翻译", "🌐 메시지는 자동 번역됩니다"],
@@ -251,12 +254,18 @@ window.XG_I18N = (function () {
     var api = (window.APP_CONFIG || {}).API_URL;
     if (!cached && api) try { document.write('<script src="' + api + '?fn=lang&l=' + LANG + '&v=' + PACK_V + '"><\/script>'); } catch (e) {}
   }
+  /* chữ mới thêm cho các ngôn ngữ bổ sung (chưa có trong bản dịch trên máy chủ) */
+  var EXTRA = {
+    chatLang: { ja: "🌐 母国語でお気軽にどうぞ – お客様の言語でお返事します", fr: "🌐 Écrivez dans votre langue – nous vous répondrons dans votre langue", de: "🌐 Schreiben Sie in Ihrer Sprache – wir antworten in Ihrer Sprache", es: "🌐 Escriba en su idioma – le responderemos en su idioma", ru: "🌐 Пишите на своём языке – мы ответим на вашем языке", th: "🌐 พิมพ์เป็นภาษาของคุณได้เลย – เราจะตอบกลับเป็นภาษาของคุณ" },
+    chatGuestSub: { ja: "料金・時間・乗車場所など、何でもお尋ねください", fr: "Posez-nous vos questions : tarifs, horaires, lieu de prise en charge…", de: "Fragen Sie uns alles: Preise, Zeiten, Abholorte…", es: "Pregúntenos lo que quiera: tarifas, horarios, puntos de recogida…", ru: "Спросите нас о чём угодно: цены, время, место посадки…", th: "สอบถามได้ทุกเรื่อง: ค่าโดยสาร เวลา จุดรับ…" },
+    chatNamePh: { ja: "お名前 / 電話・WhatsApp（任意）", fr: "Votre nom / téléphone ou WhatsApp (facultatif)", de: "Ihr Name / Telefon oder WhatsApp (optional)", es: "Su nombre / teléfono o WhatsApp (opcional)", ru: "Ваше имя / телефон или WhatsApp (необязательно)", th: "ชื่อ / เบอร์โทรหรือ LINE (ไม่บังคับ)" }
+  };
   function P() { var p = window.XG_PACK; return p && p.lang === LANG ? p : null; }
 
   function t(k, vars) {
     var p = P(), a = S[k], v;
     if (k === "noteLang" && PACKS[LANG]) v = "🌐 Khách nước ngoài – nói " + PACKS[LANG] + ", nhắn tin xác nhận điểm đón";
-    else v = (p && p.S[k]) || (a ? (a[I] || a[0]) : k);
+    else v = (EXTRA[k] && EXTRA[k][LANG]) || (p && p.S[k]) || (a ? (a[I] || a[0]) : k);
     if (vars) for (var x in vars) v = v.split("{" + x + "}").join(vars[x]);
     return v;
   }
