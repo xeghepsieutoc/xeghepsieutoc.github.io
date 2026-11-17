@@ -40,7 +40,7 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px;cur
 .route{text-align:center;font-size:3.6mm;color:#3d5247;padding:0 9mm}
 .pf{margin-top:auto;background:#10231a;color:#fff;text-align:center;padding:5mm}
 .pf small{display:block;font-size:3.4mm;opacity:.75}
-.pf b{font-size:9mm;letter-spacing:.3mm}
+.pf b{font-size:8mm;letter-spacing:.2mm;white-space:nowrap}
 @media print{
   @page{size:A5;margin:0}
   body{background:#fff}
@@ -78,7 +78,7 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px;cur
     <div class="scan">Mở Camera → quét mã → chọn giờ → Đặt xe<small>Không cần tải app · Tổng đài gọi lại xác nhận ngay</small></div>
     <div class="feat" id="feat"></div>
     <div class="route" id="pRoutes"></div>
-    <div class="pf"><small>Hotline / Zalo đặt xe 24/7</small><b id="pHot"></b></div>
+    <div class="pf"><small>Đặt xe trực tuyến 24/7</small><b id="pHot">APP ĐẶT XE SIÊU TỐC</b></div>
   </div>
 </div>
 <script>
@@ -87,7 +87,7 @@ var names={};C.PLACES.forEach(function(p){names[p.key]=p.name});
 var base=location.href.replace(/qr\.html.*$/,"");
 $("url").value=base;
 C.ROUTES.forEach(function(r){[[r.a,r.b],[r.b,r.a]].forEach(function(x){var o=document.createElement("option");o.value=x[0]+"|"+x[1];o.textContent=names[x[0]]+" → "+names[x[1]];$("route").appendChild(o);});});
-$("pBrand").textContent=C.BRAND;$("pSlogan").textContent=C.SLOGAN;$("pHot").textContent=C.HOTLINE_DISPLAY;
+$("pBrand").textContent=C.BRAND;$("pSlogan").textContent=C.SLOGAN;
 $("feat").innerHTML=C.HIGHLIGHTS.slice(0,3).map(function(h){return "<div><b>"+h.icon+"</b>"+h.text+"</div>"}).join("");
 $("pRoutes").textContent=C.PLACES.map(function(p){return p.name}).join(" · ");
 var dataUrl="";
