@@ -201,8 +201,9 @@ table.t{width:100%;border-collapse:collapse;font-size:13.5px}
   <!-- THỐNG KÊ -->
   <section id="t-tk" class="hide">
     <div class="tool">
-      <select id="tr" class="f"><option value="7">7 ngày qua</option><option value="30" selected>30 ngày qua</option><option value="m0">Tháng này</option><option value="m1">Tháng trước</option><option value="all">Toàn bộ</option></select>
-      <span class="note">Tính theo ngày khách đặt.</span>
+      <select id="tr" class="f"><option value="d0">Hôm nay</option><option value="d1">Hôm qua</option><option value="7">7 ngày qua</option><option value="30" selected>30 ngày qua</option><option value="m0">Tháng này</option><option value="m1">Tháng trước</option><option value="all">Toàn bộ</option><option value="cus">📅 Chọn từ ngày… đến ngày…</option></select>
+      <span id="trCus" class="hide" style="display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap"><input type="date" id="trFrom" class="f" style="width:auto"> → <input type="date" id="trTo" class="f" style="width:auto"></span>
+      <select id="tb" class="f" style="width:auto"><option value="at">Tính theo ngày khách đặt</option><option value="go">Tính theo ngày đi</option></select>
     </div>
     <div class="kpi" id="tkKpi"></div>
     <div class="card"><h3>Số đơn theo ngày</h3><div class="days" id="tkDays"></div></div>
@@ -611,21 +612,28 @@ $("trips").onclick=function(e){
 };
 
 /* ================= THỐNG KÊ ================= */
-$("tr").onchange=renderStats;
+function ymdI(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+$("tr").onchange=function(){var c=this.value==="cus";$("trCus").classList.toggle("hide",!c);if(c&&!$("trFrom").value){$("trFrom").value=ymdI(addD(today0(),-6));$("trTo").value=ymdI(today0());}renderStats();};
+$("trFrom").onchange=$("trTo").onchange=$("tb").onchange=renderStats;
 function renderStats(){
   var v=$("tr").value,now=new Date(),from=null,to=null;
+  if(v==="d0"){from=today0();to=addD(from,1);}
+  else if(v==="d1"){to=today0();from=addD(to,-1);}
+  else if(v==="cus"){var pf=function(x){var m=String(x||"").match(/(\d{4})-(\d{2})-(\d{2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null;};
+    from=pf($("trFrom").value);var t=pf($("trTo").value);to=t?addD(t,1):null;if(from&&to&&to<=from){var x=from;from=addD(to,-1);to=addD(x,1);}}
   if(v==="7")from=addD(today0(),-6);else if(v==="30")from=addD(today0(),-29);
   else if(v==="m0")from=new Date(now.getFullYear(),now.getMonth(),1);
   else if(v==="m1"){from=new Date(now.getFullYear(),now.getMonth()-1,1);to=new Date(now.getFullYear(),now.getMonth(),1);}
-  var L=ORD.filter(function(o){var d=pAt(o.at);if(!d)return v==="all";if(from&&d<from)return false;if(to&&d>=to)return false;return true;});
+  var KD=$("tb").value==="go"?function(o){return pDate(o.date);}:function(o){return pAt(o.at);};
+  var L=ORD.filter(function(o){var d=KD(o);if(!d)return v==="all";if(from&&d<from)return false;if(to&&d>=to)return false;return true;});
   var ok=L.filter(function(o){return sIdx(o.status)<4;}),done=L.filter(function(o){return sIdx(o.status)===3;}),cancel=L.length-ok.length;
   var sum=function(a){return a.reduce(function(s,o){return s+num(o.price);},0);};
   var seats=ok.reduce(function(s,o){return s+(Number(o.seats)||0);},0);
   $("tkKpi").innerHTML='<div><b>'+L.length+'</b><span>Tổng đơn</span></div><div><b>'+done.length+'</b><span>Hoàn thành</span></div><div><b>'+cancel+'</b><span>Huỷ ('+(L.length?Math.round(cancel/L.length*100):0)+'%)</span></div><div><b>'+seats+'</b><span>Ghế ghép đã đặt</span></div><div><b>'+money(sum(ok))+'</b><span>Doanh thu dự kiến (không tính huỷ)</span></div><div><b>'+money(sum(done))+'</b><span>Doanh thu đơn hoàn thành</span></div>';
   // theo ngày
-  var start=from||(L.length?L.reduce(function(m,o){var d=pAt(o.at);return d&&d<m?d:m;},new Date()):today0()),dd={};start=new Date(start);start.setHours(0,0,0,0);
+  var start=from||(L.length?L.reduce(function(m,o){var d=KD(o);return d&&d<m?d:m;},new Date()):today0()),dd={};start=new Date(start);start.setHours(0,0,0,0);
   var end=to?addD(to,-1):today0(),days=[];for(var d=new Date(start);d<=end&&days.length<92;d=addD(d,1))days.push(new Date(d));
-  L.forEach(function(o){var d=pAt(o.at);if(d){var k=dmy(d);dd[k]=(dd[k]||0)+1;}});
+  L.forEach(function(o){var d=KD(o);if(d){var k=dmy(d);dd[k]=(dd[k]||0)+1;}});
   var mx=Math.max.apply(null,days.map(function(d){return dd[dmy(d)]||0;}).concat([1]));
   $("tkDays").innerHTML=days.map(function(d){var n=dd[dmy(d)]||0;return '<div style="height:'+(n/mx*100)+'%" data-t="'+pad(d.getDate())+"/"+pad(d.getMonth()+1)+": "+n+' đơn"></div>';}).join("");
   bars("tkRoute",ok,function(o){return o.from+" → "+o.to;});
