@@ -128,6 +128,10 @@ window.XG_I18N = (function () {
     chatLang: ["💬 Nhắn tin trực tiếp với nhà xe – trả lời trong ít phút", "🌐 Please write in your own language – we will reply in your language", "🌐 请用您的母语留言，我们会用您的语言回复", "🌐 모국어로 편하게 보내 주세요 – 고객님의 언어로 답장해 드립니다"],
     chatGuestSub: ["Hỏi nhà xe bất cứ điều gì: giá, giờ chạy, điểm đón…", "Ask us anything: fares, times, pick-up points…", "有任何问题都可以问我们：价格、时间、上车地点…", "요금, 시간, 픽업 장소 등 무엇이든 물어보세요…"],
     chatNamePh: ["Tên / số điện thoại của bạn (không bắt buộc)", "Your name / phone or WhatsApp (optional)", "您的姓名 / 电话或微信（可选）", "이름 / 전화번호 또는 카카오톡 (선택)"],
+    chatGeneral: ["💬 Hỏi chung (chưa đặt chuyến)", "💬 General question (no booking)", "💬 一般咨询（未预订）", "💬 일반 문의 (예약 없음)"],
+    micOn: ["🎤 Đang nghe… nói xong bấm 🎤 lần nữa", "🎤 Listening… tap 🎤 again when done", "🎤 正在聆听…说完再点一次 🎤", "🎤 듣는 중… 다 말한 뒤 🎤를 다시 누르세요"],
+    micDenied: ["Bạn chưa cho phép dùng micro – vào cài đặt trình duyệt để bật", "Microphone access denied – allow it in your browser settings", "未允许使用麦克风，请在浏览器设置中开启", "마이크 권한이 없습니다 – 브라우저 설정에서 허용하세요"],
+    micNo: ["Máy này chưa hỗ trợ nhập bằng giọng nói – hãy dùng micro trên bàn phím", "Voice input not available here – use the mic on your keyboard", "此处不支持语音输入，请使用键盘上的麦克风", "여기서는 음성 입력을 쓸 수 없습니다 – 키보드의 마이크를 사용하세요"],
     chatThem: ["Nhà xe", "Driver team", "车行", "차량 업체"],
     chatNew: ["💬 Nhà xe vừa nhắn tin cho bạn", "💬 New message from the driver team", "💬 车行给您发了新消息", "💬 차량 업체에서 새 메시지가 왔습니다"],
     chatAuto: ["🌐 Tin nhắn được dịch tự động", "🌐 Messages are translated automatically", "🌐 消息自动翻译", "🌐 메시지는 자동 번역됩니다"],
@@ -252,12 +256,17 @@ window.XG_I18N = (function () {
     var cached = null;
     try { cached = localStorage.getItem("xg_pack_" + LANG + "_" + PACK_V); if (cached) window.XG_PACK = JSON.parse(cached); } catch (e) { cached = null; }
     var api = (window.APP_CONFIG || {}).API_URL;
-    if (!cached && api) try { document.write('<script src="' + api + '?fn=lang&l=' + LANG + '&v=' + PACK_V + '"><\/script>'); } catch (e) {}
+    /* tải bằng fetch (không kèm cookie Google) – trang chờ tối đa 5 giây rồi mới chạy */
+    if (!cached && api && window.fetch) window.XG_PACK_WAIT = fetch(api + "?fn=lang&l=" + LANG + "&v=" + PACK_V).then(function (r) { return r.text(); }).then(function (t) { if (/XG_PACK/.test(t)) (new Function(t))(); });
   }
   /* chữ mới thêm cho các ngôn ngữ bổ sung (chưa có trong bản dịch trên máy chủ) */
   var EXTRA = {
     chatLang: { ja: "🌐 母国語でお気軽にどうぞ – お客様の言語でお返事します", fr: "🌐 Écrivez dans votre langue – nous vous répondrons dans votre langue", de: "🌐 Schreiben Sie in Ihrer Sprache – wir antworten in Ihrer Sprache", es: "🌐 Escriba en su idioma – le responderemos en su idioma", ru: "🌐 Пишите на своём языке – мы ответим на вашем языке", th: "🌐 พิมพ์เป็นภาษาของคุณได้เลย – เราจะตอบกลับเป็นภาษาของคุณ" },
     chatGuestSub: { ja: "料金・時間・乗車場所など、何でもお尋ねください", fr: "Posez-nous vos questions : tarifs, horaires, lieu de prise en charge…", de: "Fragen Sie uns alles: Preise, Zeiten, Abholorte…", es: "Pregúntenos lo que quiera: tarifas, horarios, puntos de recogida…", ru: "Спросите нас о чём угодно: цены, время, место посадки…", th: "สอบถามได้ทุกเรื่อง: ค่าโดยสาร เวลา จุดรับ…" },
+    chatGeneral: { ja: "💬 一般的なお問い合わせ（予約なし）", fr: "💬 Question générale (sans réservation)", de: "💬 Allgemeine Frage (ohne Buchung)", es: "💬 Consulta general (sin reserva)", ru: "💬 Общий вопрос (без брони)", th: "💬 สอบถามทั่วไป (ยังไม่ได้จอง)" },
+    micOn: { ja: "🎤 聞き取り中… 話し終えたら🎤をもう一度タップ", fr: "🎤 J'écoute… touchez 🎤 à nouveau pour terminer", de: "🎤 Ich höre zu… zum Beenden 🎤 erneut tippen", es: "🎤 Escuchando… toque 🎤 otra vez al terminar", ru: "🎤 Слушаю… нажмите 🎤 ещё раз, когда закончите", th: "🎤 กำลังฟัง… พูดเสร็จแล้วแตะ 🎤 อีกครั้ง" },
+    micDenied: { ja: "マイクが許可されていません – ブラウザの設定で許可してください", fr: "Micro refusé – autorisez-le dans les réglages du navigateur", de: "Mikrofon nicht erlaubt – bitte in den Browsereinstellungen freigeben", es: "Micrófono denegado – permítalo en los ajustes del navegador", ru: "Нет доступа к микрофону – разрешите его в настройках браузера", th: "ไม่ได้อนุญาตไมโครโฟน – โปรดเปิดในการตั้งค่าเบราว์เซอร์" },
+    micNo: { ja: "ここでは音声入力が使えません – キーボードのマイクをご利用ください", fr: "Saisie vocale indisponible – utilisez le micro du clavier", de: "Spracheingabe nicht verfügbar – nutzen Sie das Mikrofon der Tastatur", es: "Entrada de voz no disponible – use el micrófono del teclado", ru: "Голосовой ввод недоступен – используйте микрофон на клавиатуре", th: "ใช้การป้อนด้วยเสียงที่นี่ไม่ได้ – โปรดใช้ไมค์บนแป้นพิมพ์" },
     chatNamePh: { ja: "お名前 / 電話・WhatsApp（任意）", fr: "Votre nom / téléphone ou WhatsApp (facultatif)", de: "Ihr Name / Telefon oder WhatsApp (optional)", es: "Su nombre / teléfono o WhatsApp (opcional)", ru: "Ваше имя / телефон или WhatsApp (необязательно)", th: "ชื่อ / เบอร์โทรหรือ LINE (ไม่บังคับ)" }
   };
   function P() { var p = window.XG_PACK; return p && p.lang === LANG ? p : null; }

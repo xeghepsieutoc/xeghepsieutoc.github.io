@@ -268,6 +268,9 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 .cm.pend{opacity:.6}
 .chbar{display:flex;gap:8px;align-items:flex-end}
 .chbar textarea{flex:1;resize:none;min-height:46px;max-height:120px}
+.chmic{flex:none;width:48px;height:48px;border-radius:50%;border:1.5px solid var(--g500);background:var(--g50);font-size:22px}
+.chmic.on{background:var(--red);border-color:var(--red);animation:pop 1s ease-in-out infinite}
+#chPick{width:100%;margin:6px 0 0;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:13.5px;font-weight:600;background:#fff}
 .chauto{font-size:13px;color:var(--g800);font-weight:700;text-align:center;background:var(--g50);border-radius:10px;padding:7px 10px;margin-bottom:8px}
 .chx{position:absolute;top:10px;right:12px;width:38px;height:38px;border-radius:50%;border:0;background:#eef3f0;color:var(--ink);font-size:20px;font-weight:700;line-height:38px}
 .chsheet{position:relative}
@@ -590,10 +593,11 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
     <button type="button" class="chx" id="chMin" aria-label="Thu nhỏ">✕</button>
     <h3 id="chTitle">Nhắn tin với nhà xe</h3>
     <p class="sub" id="chSub" style="margin:0"></p>
+    <select id="chPick" class="hidden"></select>
     <div class="chlist" id="chList"></div>
     <div class="chauto" id="chAuto"></div>
     <input class="inp hidden" id="chContact" maxlength="80" style="margin:0 0 8px;padding:10px 12px;font-size:14px">
-    <div class="chbar"><textarea class="inp" id="chIn" rows="1" maxlength="600"></textarea><button class="btn btn-p" id="chSend" style="padding:12px 18px">Gửi</button></div>
+    <div class="chbar"><textarea class="inp" id="chIn" rows="1" maxlength="600"></textarea><button type="button" class="chmic hidden" id="chMic" aria-label="Micro">🎤</button><button class="btn btn-p" id="chSend" style="padding:12px 18px">Gửi</button></div>
   </div>
 </div>
 
@@ -624,7 +628,8 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 var BASE=window.APP_CONFIG,started=false,KEY="xg_remote_cfg";
 function merge(r){var c={},k;for(k in BASE)c[k]=BASE[k];if(r)for(k in r)if(k!=="API_URL"&&k!=="APP_VERSION"&&r[k]!=null)c[k]=r[k];return c;}
 var cached=null;try{cached=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){}
-function start(r){if(started)return;started=true;window.APP_CONFIG=merge(r);main();}
+function start(r){if(started)return;started=true;window.APP_CONFIG=merge(r);
+  var pw=window.XG_PACK_WAIT;if(pw&&!window.XG_PACK){var ran=false,go=function(){if(ran)return;ran=true;main();};pw.then(go,go);setTimeout(go,5000);}else main();}
 if(BASE.API_URL){
   var tmo=setTimeout(function(){start(cached);},3500);
   if(cached)start(cached);
@@ -1001,6 +1006,10 @@ function openChat(i){
   var pf=LS.get("xg_profile",{});
   $("chContact").classList.toggle("hidden",i!==-1);$("chContact").placeholder=T("chatNamePh");
   if(i===-1&&!$("chContact").value)$("chContact").value=x.contact||((pf.name||"")+(pf.phone?" · "+pf.phone:""));
+  var opts=chatTargets();if(opts.indexOf(-1)<0)opts.push(-1);if(opts.indexOf(i)<0)opts.unshift(i);
+  $("chPick").innerHTML=opts.map(function(k){var y=getT(k);var lb=k===-1?T("chatGeneral"):(y.code+" · "+(y.fk?pl(y.fk):y.from)+" → "+(y.tk?pl(y.tk):y.to)+" · "+y.time+" "+String(y.date).slice(0,5));var u=unread(k);return '<option value="'+k+'"'+(k===i?" selected":"")+'>'+(u?"🔴 ":"")+esc(lb)+'</option>';}).join("");
+  $("chPick").classList.toggle("hidden",opts.length<2);
+  micStop();
   $("chList").innerHTML='<div class="chempty">'+esc(T("chatEmpty"))+'</div>';
   openOv("ovChat");$("chFab").classList.add("hidden");loadChat(true);
   clearInterval(chTimer);chTimer=setInterval(function(){if(!$("ovChat").classList.contains("show")){clearInterval(chTimer);return;}loadChat(false);},6000);
@@ -1032,7 +1041,23 @@ function sendChat(){
     if(j&&j.ok)loadChat(false);else{toast("⚠️ "+(j&&j.error||T("netErr")),4000);$("chIn").value=txt;loadChat(false);}
   }).catch(function(){chBusy=false;$("chSend").disabled=false;$("chIn").value=txt;toast("⚠️ "+T("netErr"),4000);});
 }
-$("chSend").addEventListener("click",sendChat);
+$("chSend").addEventListener("click",function(){micStop();sendChat();});
+$("chPick").addEventListener("change",function(){openChat(+this.value);});
+/* 🎤 nói để nhập tin nhắn (Web Speech API) */
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,micOn=false,micBase="";
+var SRL={vi:"vi-VN",en:"en-US",zh:"zh-CN",ko:"ko-KR",ja:"ja-JP",fr:"fr-FR",de:"de-DE",es:"es-ES",ru:"ru-RU",th:"th-TH"};
+if(SR)$("chMic").classList.remove("hidden");
+function micStop(){if(rec&&micOn){try{rec.stop();}catch(e){}}micOn=false;$("chMic").classList.remove("on");}
+$("chMic").addEventListener("click",function(){
+  if(micOn){micStop();return;}
+  try{rec=new SR();}catch(e){toast(T("micNo"),3500);return;}
+  rec.lang=SRL[L.lang]||"vi-VN";rec.interimResults=true;rec.continuous=true;
+  micBase=$("chIn").value?$("chIn").value.replace(/\s*$/," "):"";
+  rec.onresult=function(ev){var t="";for(var k=0;k<ev.results.length;k++)t+=ev.results[k][0].transcript;$("chIn").value=micBase+t;};
+  rec.onerror=function(ev){micStop();toast(ev.error==="not-allowed"||ev.error==="service-not-allowed"?T("micDenied"):T("micNo"),4000);};
+  rec.onend=function(){micOn=false;$("chMic").classList.remove("on");};
+  try{rec.start();micOn=true;$("chMic").classList.add("on");toast(T("micOn"),2500);}catch(e){toast(T("micNo"),3500);}
+});
 $("chIn").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat();}});
 $("hist").addEventListener("click",function(e){var b=e.target.closest("[data-ch]");if(b)openChat(+b.dataset.ch);});
 function chatTargets(){var H=LS.get("xg_hist",[]),t=[];H.forEach(function(x,i){if(chatOk(x))t.push(i);});var g=guest(false);if(guestOk()&&(g.n||g.seen||!t.length))t.push(-1);return t;}
@@ -1040,14 +1065,14 @@ function unread(i){var x=getT(i);return x?Math.max(0,(x.n||0)-(x.seen||0)):0;}
 $("qChat").addEventListener("click",function(){
   var t=chatTargets();if(!t.length){openChat(-1);return;}
   var un=t.filter(function(i){return unread(i)>0;});
-  if(un.length)openChat(un[0]);else if(t.length===1)openChat(t[0]);else{var real=t.filter(function(i){return i>=0;});if(real.length===1)openChat(real[0]);else goTo("histCard");}
+  openChat(un.length?un[0]:t[0]);
 });
 function updBadge(){var n=0;chatTargets().forEach(function(i){n+=unread(i);});
   var b=$("qChatBd");if(!b)return;b.textContent=n>9?"9+":n;b.classList.toggle("hidden",!n);
   var f=$("chFabBd");f.textContent=b.textContent;f.classList.toggle("hidden",!n);
   var conv=chatTargets().some(function(i){var x=getT(i);return x&&(x.n||x.seen);});
   $("chFab").classList.toggle("hidden",!(conv||n)||$("ovChat").classList.contains("show"));}
-$("chMin").addEventListener("click",function(){closeOv("ovChat");updBadge();});
+$("chMin").addEventListener("click",function(){micStop();closeOv("ovChat");updBadge();});
 $("chFab").addEventListener("click",function(){$("qChat").click();});
 $("doneChat").addEventListener("click",function(){closeOv("ovDone");openChat(0);});
 /* kiểm tra tin mới → tự bật khung chat */
