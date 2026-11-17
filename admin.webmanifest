@@ -1,0 +1,18 @@
+{
+  "id": "./admin.html",
+  "name": "Quản lý Xe Xanh – Đặt xe ghép",
+  "short_name": "Quản lý xe",
+  "description": "Trang quản lý đơn đặt xe ghép (dành cho nhà xe)",
+  "lang": "vi",
+  "start_url": "./admin.html?source=pwa",
+  "scope": "./admin.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b4f30",
+  "theme_color": "#0b4f30",
+  "icons": [
+    { "src": "icons/admin-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/admin-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/admin-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

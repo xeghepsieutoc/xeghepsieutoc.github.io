@@ -7,7 +7,12 @@
 <meta name="theme-color" content="#0b4f30">
 <title>Quản lý đặt xe</title>
 <link rel="icon" type="image/png" href="icons/favicon-64.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" href="icons/admin-apple-180.png">
+<link rel="manifest" href="admin.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Quản lý xe">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <style>
@@ -137,8 +142,9 @@ table.t{width:100%;border-collapse:collapse;font-size:13.5px}
 <div id="app" class="hide">
 <header>
   <div class="hrow">
-    <img src="icons/icon-192.png" alt="">
+    <img src="icons/admin-192.png" alt="">
     <h1><span id="hBrand">Quản lý đặt xe</span><small id="hSub">Đang tải…</small></h1>
+    <button class="hbtn hide" id="instBtn">📲 Cài app</button>
     <button class="hbtn" id="rfBtn" title="Tải lại">⟳</button>
     <button class="hbtn" id="outBtn">Thoát</button>
   </div>
@@ -543,6 +549,24 @@ function askText(title,fields,okText,cb){
   $("dOk").onclick=go;[].forEach.call(document.querySelectorAll("#ovBody input"),function(x){x.onkeydown=function(ev){if(ev.key==="Enter")go();};});
 }
 $("ov").onclick=function(e){if(e.target===this||e.target.closest("[data-close]"))closeOv();};
+/* ---------- Cài trang quản lý thành app riêng (icon "QL") ---------- */
+(function(){
+  var standalone=window.matchMedia&&matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/i.test(ua),inapp=/Zalo|FBAN|FBAV|Instagram|Line\//i.test(ua),dp=null;
+  if("serviceWorker" in navigator&&location.protocol!=="file:")navigator.serviceWorker.register("sw.js").catch(function(){});
+  if(standalone)return;
+  $("instBtn").classList.remove("hide");
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e;});
+  window.addEventListener("appinstalled",function(){$("instBtn").classList.add("hide");toast("🎉 Đã cài app Quản lý xe",3000);});
+  $("instBtn").onclick=function(){
+    if(dp){dp.prompt();dp.userChoice.then(function(){dp=null;});return;}
+    var img='<img src="icons/admin-192.png" style="width:64px;height:64px;border-radius:16px;display:block;margin:0 auto 10px">';
+    var h=inapp?'<b>Đang mở trong Zalo/Facebook</b> – không cài được app ở đây.<br>Bấm <b>⋯</b> hoặc <b>⋮</b> góc trên phải → <b>Mở bằng trình duyệt</b>, rồi bấm lại nút <b>📲 Cài app</b>.'
+      :ios?'1. Mở trang này bằng <b>Safari</b>.<br>2. Bấm nút <b>Chia sẻ</b> ⬆️ ở dưới.<br>3. Chọn <b>Thêm vào MH chính</b> → <b>Thêm</b>.<br>Icon <b>“Quản lý xe”</b> sẽ hiện trên màn hình.'
+      :'1. Bấm <b>⋮</b> góc trên phải Chrome.<br>2. Chọn <b>Cài đặt ứng dụng</b> hoặc <b>Thêm vào màn hình chính</b>.<br>Icon <b>“Quản lý xe”</b> sẽ hiện trên màn hình.';
+    openOv(img+'<h3 style="margin:0 0 10px;text-align:center">📲 Cài app Quản lý xe</h3><div style="line-height:1.7">'+h+'</div><div class="act"><span style="flex:1"></span><button class="btn" data-close>Đã hiểu</button></div>');
+  };
+})();
 
 $("csvBtn").onclick=function(){
   var cols=[["code","Mã"],["at","Đặt lúc"],["status","Trạng thái"],["serviceName","Loại xe"],["from","Đi"],["to","Đến"],["date","Ngày đi"],["time","Giờ"],["seats","Ghế"],["price","Giá"],["name","Tên"],["phone","SĐT"],["pickup","Đón"],["dropoff","Trả"],["note","Ghi chú"],["src","Nguồn"],["driver","Tài xế"],["inote","Ghi chú nội bộ"]];
