@@ -199,6 +199,16 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 .kv b{text-align:right;word-break:break-word}
 .kv .tot{background:var(--g50)}
 .kv .tot b{color:var(--g800);font-size:17px}
+.kv .pk{background:#fff7e6;flex-wrap:wrap}
+.kv .pk b{color:#7a4b00}
+.kv .pk a{color:var(--g700);font-weight:700;font-size:13px;text-decoration:none;margin-left:auto}
+.achips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.achips .lbl{width:100%;font-size:12px;color:var(--mut);font-weight:600}
+.achip{display:inline-flex;align-items:center;gap:4px;max-width:100%;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 6px 6px 11px;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer}
+.achip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+.achip.on{border-color:var(--g600);background:var(--g50);color:var(--g800)}
+.achip i{font-style:normal;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:var(--mut);font-size:14px}
+.achip i:hover{background:#eee}
 .acts{display:grid;gap:10px;margin-top:16px}
 .acts.two{grid-template-columns:1fr 1.6fr}
 .okic{width:76px;height:76px;border-radius:50%;background:var(--g100);display:grid;place-items:center;margin:8px auto 12px;animation:pop .4s ease}
@@ -354,9 +364,11 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
         <input class="inp" id="pickup" placeholder="Số nhà, đường, phường/xã…" maxlength="200">
         <div class="errmsg">Vui lòng nhập điểm đón</div>
       </label>
+      <div class="achips hidden" id="pkChips"></div>
       <label class="field"><span>Điểm trả</span>
         <input class="inp" id="dropoff" placeholder="Có thể bổ sung sau khi tổng đài gọi" maxlength="200">
       </label>
+      <div class="achips hidden" id="dpChips"></div>
       <label class="field"><span>Ghi chú</span>
         <textarea class="inp" id="note" rows="2" placeholder="Mang theo hành lý lớn, trẻ nhỏ, cần xuất hoá đơn…" maxlength="300"></textarea>
       </label>
@@ -686,7 +698,26 @@ $("ptBody").addEventListener("click",function(e){
 var saved=LS.get("xg_profile",{});
 if(saved.name)$("name").value=saved.name;
 if(saved.phone)$("phone").value=saved.phone;
-if(saved.pickup)$("pickup").value=saved.pickup;
+/* Địa chỉ đã dùng: KHÔNG tự điền, chỉ gợi ý để khách bấm chọn hoặc nhập mới */
+var ADDR=LS.get("xg_addrs",{pickup:[],dropoff:[]});
+if(saved.pickup&&ADDR.pickup.indexOf(saved.pickup)<0)ADDR.pickup.unshift(saved.pickup);
+function renderAddr(kind){
+  var box=$(kind==="pickup"?"pkChips":"dpChips"),L=(ADDR[kind]||[]).slice(0,5),cur=$(kind).value.trim();
+  box.classList.toggle("hidden",!L.length);
+  box.innerHTML=L.length?'<div class="lbl">'+(kind==="pickup"?"📍 Chọn nhanh điểm đón đã dùng:":"🏁 Điểm trả đã dùng:")+'</div>'+L.map(function(a,i){return '<span class="achip'+(a===cur?" on":"")+'" data-i="'+i+'"><span>'+esc(a)+'</span><i data-del="'+i+'" title="Xoá">×</i></span>';}).join(""):"";
+}
+["pickup","dropoff"].forEach(function(kind){
+  var box=$(kind==="pickup"?"pkChips":"dpChips");
+  box.addEventListener("click",function(e){
+    var d=e.target.closest("[data-del]");
+    if(d){ADDR[kind].splice(+d.dataset.del,1);LS.set("xg_addrs",ADDR);renderAddr(kind);return;}
+    var c=e.target.closest(".achip");if(!c)return;
+    $(kind).value=ADDR[kind][+c.dataset.i];$(kind).classList.remove("err");renderAddr(kind);
+  });
+  $(kind).addEventListener("input",function(){renderAddr(kind);});
+  renderAddr(kind);
+});
+function rememberAddr(kind,v){if(!v)return;var L=ADDR[kind]||[];var i=L.indexOf(v);if(i>=0)L.splice(i,1);L.unshift(v);ADDR[kind]=L.slice(0,5);LS.set("xg_addrs",ADDR);}
 function normPhone(v){v=(v||"").replace(/[^\d+]/g,"");if(v.indexOf("+84")===0)v="0"+v.slice(3);else if(v.indexOf("84")===0&&v.length===11)v="0"+v.slice(2);return v;}
 function validPhone(v){return /^0(3|5|7|8|9)\d{8}$/.test(v)||/^02\d{9}$/.test(v);}
 function mark(id,bad){$(id).classList.toggle("err",bad);return !bad;}
@@ -726,9 +757,10 @@ $("bookBtn").addEventListener("click",function(){
     ["Điểm đón",o.pickup]];
   if(o.dropoff)rows.push(["Điểm trả",o.dropoff]);
   if(o.note)rows.push(["Ghi chú",o.note]);
-  var h=rows.map(function(r){return "<div><span>"+r[0]+"</span><b>"+esc(r[1])+"</b></div>";}).join("");
+  var h=rows.map(function(r){return r[0]==="Điểm đón"?'<div class="pk"><span>📍 Điểm đón</span><b>'+esc(r[1])+'</b><a href="#" id="pkEdit">✏️ Đổi điểm đón</a></div>':"<div><span>"+r[0]+"</span><b>"+esc(r[1])+"</b></div>";}).join("");
   h+='<div class="tot"><span>Tạm tính</span><b>'+(o.price?o.price.toLocaleString("vi-VN")+"đ":"Liên hệ")+'</b></div>';
   $("cfList").innerHTML=h;
+  $("pkEdit").onclick=function(e){e.preventDefault();closeOv("ovConfirm");var p=$("pickup");p.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(function(){p.focus();p.select();},350);};
   openOv("ovConfirm");
 });
 
@@ -738,7 +770,7 @@ function setLoading(on){var b=$("sendBtn");b.disabled=on;b.innerHTML=on?'<span c
 function send(){
   if(!pending)return;
   setLoading(true);
-  LS.set("xg_profile",{name:pending.name,phone:pending.phone,pickup:pending.pickup});
+  LS.set("xg_profile",{name:pending.name,phone:pending.phone});
   if(!C.API_URL){ // DEMO
     setTimeout(function(){setLoading(false);done(genCode(),true);},700);return;
   }
@@ -761,7 +793,8 @@ function done(code,demo){
   var h=LS.get("xg_hist",[]);
   h.unshift({code:code,from:pending.from,to:pending.to,date:pending.date,time:pending.time,svc:pending.serviceName,seats:pending.seats,at:Date.now()});
   LS.set("xg_hist",h.slice(0,10));renderHist();
-  $("dropoff").value="";$("note").value="";
+  rememberAddr("pickup",pending.pickup);rememberAddr("dropoff",pending.dropoff);
+  $("pickup").value="";$("dropoff").value="";$("note").value="";renderAddr("pickup");renderAddr("dropoff");
   openOv("ovDone");
   if(navigator.vibrate)navigator.vibrate([20,40,20]);
 }
