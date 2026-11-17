@@ -866,7 +866,6 @@ function openInapp(auto){
   $("iaOpen").href=openUrl();
   openOv("ovInapp");
   var ar=$("iaArrow");ar.style.display="block";setTimeout(function(){ar.style.display="none";},9000);
-  if(auto)setTimeout(tryExternal,400);
 }
 $("iaOpen").addEventListener("click",function(e){e.preventDefault();tryExternal();});
 $("iaCopy").addEventListener("click",function(){var u=extUrl();(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){toast("Đã copy link – mở Chrome/Safari rồi dán vào ô địa chỉ",4000);}).catch(function(){window.prompt&&prompt("Copy link này:",u);});});
