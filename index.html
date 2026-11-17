@@ -45,8 +45,11 @@ a{color:inherit}
 .brand{flex:1;min-width:0}
 .brand b{display:block;font-size:17px;font-weight:800;letter-spacing:-.2px;color:var(--g800)}
 .brand small{display:block;font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.call-btn{display:flex;align-items:center;gap:6px;background:var(--g700);color:#fff;text-decoration:none;font-weight:700;font-size:13.5px;padding:9px 13px;border-radius:999px;box-shadow:0 4px 12px rgba(15,122,72,.28)}
-.call-btn svg{width:16px;height:16px}
+.call-btn{display:flex;align-items:center;gap:6px;background:var(--g700);color:#fff;text-decoration:none;font-weight:700;font-size:13.5px;padding:6px 14px 6px 12px;border-radius:999px;box-shadow:0 4px 12px rgba(15,122,72,.28)}
+.call-btn svg{width:16px;height:16px;flex:none}
+.call-btn .ct{display:flex;flex-direction:column;line-height:1.15}
+.call-btn .ct small{font-size:10px;font-weight:600;opacity:.88;white-space:nowrap}
+.call-btn .ct b{font-size:14px;white-space:nowrap}
 
 /* ===== Banners ===== */
 .banner{margin:12px 0 0;border-radius:var(--r-sm);padding:12px 14px;display:flex;gap:12px;align-items:center;font-size:13.5px}
@@ -243,7 +246,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
     <div class="brand"><b id="brandName">Xe Xanh</b><small id="brandSlogan"></small></div>
     <a class="call-btn" id="callTop" href="#">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
-      <span id="callTopTxt">Gọi</span>
+      <span class="ct"><small>Hotline hỗ trợ ứng dụng</small><b id="callTopTxt">Gọi</b></span>
     </a>
   </div>
 </header>
