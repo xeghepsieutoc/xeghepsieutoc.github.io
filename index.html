@@ -700,6 +700,21 @@ $("callTopLbl").textContent=C.HOTLINE_LABEL||"Hotline";
 if(C.NOTICE){$("noticeTxt").textContent=C.NOTICE;$("noticeBanner").classList.remove("hidden");}
 if(C.OPEN===false){$("noticeTxt").textContent=L.i?T("closedMsg"):(C.CLOSED_MSG||T("closedMsg"));$("noticeBanner").classList.remove("hidden");$("bookBtn").disabled=true;$("bookBtn").textContent=T("closed");}
 $("hl").innerHTML=C.HIGHLIGHTS.map(function(h){return '<span class="chip">'+h.icon+" "+L.cfg(h.text)+"</span>";}).join("");
+/* chữ do nhà xe tự nhập (thông báo, khẩu hiệu…) → tự dịch theo ngôn ngữ khách chọn */
+if(L.i&&C.API_URL){(function(){
+  var K="xg_cfgtr_"+L.lang;
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function tx(v,M){if(!v)return v;var c=L.cfg(v);return c!==v?c:(M[v]||v);}
+  function ap(M){if(!M)return;
+    if(C.OPEN===false){if(C.CLOSED_MSG&&M[C.CLOSED_MSG])$("noticeTxt").textContent=M[C.CLOSED_MSG];}
+    else if(C.NOTICE)$("noticeTxt").textContent=tx(C.NOTICE,M);
+    $("ftTag").textContent=tx(C.TAGLINE,M);
+    $("brandName").textContent=C.HEADER_TITLE?tx(C.HEADER_TITLE,M):C.BRAND; $("brandSlogan").textContent=tx(C.HEADER_SUB||C.SLOGAN,M);
+    if(typeof fitHead==="function")try{fitHead();}catch(e){}
+    $("hl").innerHTML=C.HIGHLIGHTS.map(function(h){return '<span class="chip">'+h.icon+" "+esc(tx(h.text,M))+"</span>";}).join("");}
+  ap(LS.get(K,null));
+  fetch(C.API_URL+"?fn=cfgtr&l="+L.lang,{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok&&j.data){LS.set(K,j.data);ap(j.data);}}).catch(function(){});
+})();}
 
 /* ---------- Service ---------- */
 var svcQ=qs.get("service"); if(SVC[svcQ]) state.svc=svcQ;
