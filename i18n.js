@@ -3,8 +3,10 @@
  *  Đơn gửi về Telegram/Google Sheet vẫn bằng tiếng Việt.
  * ===================================================================== */
 window.XG_I18N = (function () {
-  var LANGS = [["vi", "🇻🇳 VI"], ["en", "🇬🇧 EN"], ["zh", "🇨🇳 中文"], ["ko", "🇰🇷 한국어"]];
+  var LANGS = [["vi", "🇻🇳 VI"], ["en", "🇬🇧 EN"], ["zh", "🇨🇳 中文"], ["ko", "🇰🇷 한국어"], ["ja", "🇯🇵 日本語"], ["fr", "🇫🇷 FR"], ["de", "🇩🇪 DE"], ["es", "🇪🇸 ES"], ["ru", "🇷🇺 RU"], ["th", "🇹🇭 ไทย"]];
   var IDX = { vi: 0, en: 1, zh: 2, ko: 3 };
+  /* Ngôn ngữ bổ sung: nạp từ file lang-xx.js (dịch tự động từ tiếng Anh) */
+  var PACKS = { ja: "tiếng Nhật", fr: "tiếng Pháp", de: "tiếng Đức", es: "tiếng Tây Ban Nha", ru: "tiếng Nga", th: "tiếng Thái" };
 
   /* Tên địa điểm hiển thị (dữ liệu đơn vẫn dùng tên tiếng Việt) */
   var PLACES = {
@@ -111,9 +113,13 @@ window.XG_I18N = (function () {
     pickReason: ["Vui lòng chọn hoặc nhập lý do huỷ", "Please choose or type a reason", "请选择或填写取消原因", "취소 사유를 선택하거나 입력하세요"],
     cancelOk: ["✔ Đã huỷ chuyến – nhà xe đã nhận được thông báo", "✔ Booking cancelled – we have been notified", "✔ 已取消，车行已收到通知", "✔ 예약이 취소되었고 업체에 전달되었습니다"],
     /* Nhắn tin tự dịch */
+    navPrice: ["💰 Bảng giá", "💰 Fares", "💰 价格表", "💰 요금표"],
+    navCancel: ["❌ Huỷ chuyến", "❌ Cancel a trip", "❌ 取消行程", "❌ 예약 취소"],
+    noTrips: ["Bạn chưa đặt chuyến nào trên máy này. Đặt qua tổng đài? Hãy gọi hotline để huỷ.", "No bookings on this phone yet. Booked by phone? Please call us to cancel.", "本机暂无预订。电话预订的请致电我们取消。", "이 휴대폰에는 예약 내역이 없습니다. 전화로 예약하셨다면 전화로 취소해 주세요."],
+    tapCall: ["Bấm để gọi", "Tap to call", "点击拨打", "눌러서 전화"],
     chatBtn: ["💬 Nhắn nhà xe", "💬 Message us", "💬 发消息", "💬 메시지"],
     chatTitle: ["Nhắn tin với nhà xe", "Chat with the driver team", "与车行聊天", "차량 업체와 채팅"],
-    chatSub: ["Mã đặt chỗ {c}", "Booking {c} · write in English – we translate automatically", "预订 {c} · 用中文写即可，自动翻译", "예약 {c} · 한국어로 쓰시면 자동 번역됩니다"],
+    chatSub: ["Mã đặt chỗ {c}", "Booking {c} · write in your own language – we translate automatically", "预订 {c} · 用中文写即可，自动翻译", "예약 {c} · 한국어로 쓰시면 자동 번역됩니다"],
     chatPh: ["Nhập tin nhắn…", "Type a message… (e.g. I'm at the hotel lobby)", "输入消息…（如：我在酒店大堂）", "메시지 입력… (예: 호텔 로비에 있어요)"],
     chatSend: ["Gửi", "Send", "发送", "보내기"],
     chatEmpty: ["Chưa có tin nhắn. Hãy gửi điểm đón, số phòng khách sạn hoặc câu hỏi của bạn.", "No messages yet. Send your exact pick-up point, hotel room or any question – we reply in your language.", "暂无消息。请发送具体上车地点、酒店房号或您的问题，我们会用中文回复。", "아직 메시지가 없습니다. 정확한 픽업 장소, 호텔 객실 번호나 질문을 보내 주세요 – 한국어로 답해 드립니다."],
@@ -227,38 +233,48 @@ window.XG_I18N = (function () {
 
   function detect() {
     var q = new URLSearchParams(location.search).get("lang");
-    if (q && IDX[q] != null) return q;
-    try { var s = localStorage.getItem("xg_lang"); if (s && IDX[s] != null) return s; } catch (e) {}
-    var n = (navigator.language || "").toLowerCase();
-    if (n.indexOf("zh") === 0) return "zh";
-    if (n.indexOf("ko") === 0) return "ko";
+    var ok = function (l) { return l && (IDX[l] != null || PACKS[l]); };
+    if (ok(q)) return q;
+    try { var s = localStorage.getItem("xg_lang"); if (ok(s)) return s; } catch (e) {}
+    var n = (navigator.language || "").toLowerCase().slice(0, 2);
+    if (n === "zh" || n === "ko" || PACKS[n]) return n;
     return "vi";   /* nhiều máy người Việt để giao diện tiếng Anh nên mặc định vẫn là tiếng Việt */
   }
   var LANG = detect(), I = IDX[LANG];
+  if (PACKS[LANG]) {   /* nạp file ngôn ngữ trước khi trang chạy; thiếu chữ nào thì dùng tiếng Anh */
+    I = 1;
+    try { document.write('<script src="lang-' + LANG + '.js?v=1"><\/script>'); } catch (e) {}
+  }
+  function P() { var p = window.XG_PACK; return p && p.lang === LANG ? p : null; }
 
   function t(k, vars) {
-    var a = S[k]; var v = a ? (a[I] || a[0]) : k;
+    var p = P(), a = S[k], v;
+    if (k === "noteLang" && PACKS[LANG]) v = "🌐 Khách nước ngoài – nói " + PACKS[LANG] + ", nhắn tin xác nhận điểm đón";
+    else v = (p && p.S[k]) || (a ? (a[I] || a[0]) : k);
     if (vars) for (var x in vars) v = v.split("{" + x + "}").join(vars[x]);
     return v;
   }
-  function place(key, viName) { var p = PLACES[key]; return I && p ? p[I] : (viName || key); }
-  function cfg(v) { var a = CFG[v]; return I && a ? a[I - 1] : v; }
-  function wd(d) { return WD[I][d]; }
+  function place(key, viName) { var q = P(); if (q && q.PLACES[key]) return q.PLACES[key]; var p = PLACES[key]; return I && p ? p[I] : (viName || key); }
+  function cfg(v) { var q = P(); if (q && q.CFG[v]) return q.CFG[v]; var a = CFG[v]; return I && a ? a[I - 1] : v; }
+  function wd(d) { var q = P(); return (q && q.WD[d]) || WD[I][d]; }
 
   function apply() {
     document.documentElement.lang = LANG;
     if (!I) return;
-    H.forEach(function (h) { var el = document.querySelector(h[0]); if (el) el.innerHTML = h[1][I - 1]; });
+    var q = P() || { H: {}, SEC: [], FIELD: [], PH: {} };
+    H.forEach(function (h) { var el = document.querySelector(h[0]); if (el) el.innerHTML = (q.H[h[0]] || h[1][I - 1]).split("{SVG}").join(SHARE_SVG); });
     [].forEach.call(document.querySelectorAll(".sec-t"), function (el, i) {
-      if (!SEC[i]) return; var n = el.querySelector(".n"); el.innerHTML = ""; if (n) el.appendChild(n); el.appendChild(document.createTextNode(SEC[i][I - 1]));
+      if (!SEC[i]) return; var n = el.querySelector(".n"); el.innerHTML = ""; if (n) el.appendChild(n); el.appendChild(document.createTextNode(q.SEC[i] || SEC[i][I - 1]));
     });
-    [].forEach.call(document.querySelectorAll(".field > span"), function (el, i) { if (FIELD[i]) el.innerHTML = FIELD[i][I - 1]; });
-    for (var id in PH) { var e = document.getElementById(id); if (e) e.placeholder = PH[id][I - 1]; }
+    [].forEach.call(document.querySelectorAll(".field > span"), function (el, i) { if (FIELD[i]) el.innerHTML = q.FIELD[i] || FIELD[i][I - 1]; });
+    for (var id in PH) { var e = document.getElementById(id); if (e) e.placeholder = q.PH[id] || PH[id][I - 1]; }
     var pe = document.querySelector("#phone + .errmsg"); if (pe) pe.textContent = t("phoneErr");
   }
   function set(l) { try { localStorage.setItem("xg_lang", l); } catch (e) {} var u = new URL(location.href); u.searchParams.delete("lang"); location.replace(u.toString()); }
 
-  function reasons() { return REASONS.map(function (r) { return r[I]; }); }
+  function reasons() { var q = P(); return REASONS.map(function (r, k) { return (q && q.REASONS[k]) || r[I]; }); }
   function reasonsVi() { return REASONS.map(function (r) { return r[0]; }); }
-  return { reasons: reasons, reasonsVi: reasonsVi, LANGS: LANGS, lang: LANG, i: I, t: t, place: place, cfg: cfg, wd: wd, apply: apply, set: set };
+  /* dùng để tạo file ngôn ngữ mới */
+  var SRC = { S: S, REASONS: REASONS, H: H, SEC: SEC, FIELD: FIELD, PH: PH, PLACES: PLACES, CFG: CFG };
+  return { SRC: SRC, PACKS: PACKS, reasons: reasons, reasonsVi: reasonsVi, LANGS: LANGS, lang: LANG, i: I, t: t, place: place, cfg: cfg, wd: wd, apply: apply, set: set };
 })();
