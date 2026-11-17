@@ -119,6 +119,7 @@ window.XG_I18N = (function () {
     navChat: ["💬 Nhắn nhà xe", "💬 Message us", "💬 联系车行", "💬 메시지"],
     noChat: ["Đặt xe xong là bạn nhắn tin được với nhà xe ngay tại đây.", "After booking you can message the driver team right here.", "预订后即可在这里给车行发消息。", "예약 후 여기에서 바로 업체에 메시지를 보낼 수 있습니다."],
     tapCall: ["Bấm để gọi", "Tap to call", "点击拨打", "눌러서 전화"],
+    devHot: ["Hỗ trợ tạo app", "App development support", "应用开发支持", "앱 제작 지원"],
     chatBtn: ["💬 Nhắn nhà xe", "💬 Message us", "💬 发消息", "💬 메시지"],
     chatTitle: ["Nhắn tin với nhà xe", "Chat with the driver team", "与车行聊天", "차량 업체와 채팅"],
     chatSub: ["Mã đặt chỗ {c}", "Booking {c} · write in your own language – we translate automatically", "预订 {c} · 用中文写即可，自动翻译", "예약 {c} · 한국어로 쓰시면 자동 번역됩니다"],
@@ -261,6 +262,7 @@ window.XG_I18N = (function () {
   }
   /* chữ mới thêm cho các ngôn ngữ bổ sung (chưa có trong bản dịch trên máy chủ) */
   var EXTRA = {
+    devHot: { ja: "アプリ制作サポート", fr: "Support création d'app", de: "App-Entwicklung & Support", es: "Soporte para crear apps", ru: "Поддержка создания приложений", th: "บริการรับทำแอป" },
     chatLang: { ja: "🌐 母国語でお気軽にどうぞ – お客様の言語でお返事します", fr: "🌐 Écrivez dans votre langue – nous vous répondrons dans votre langue", de: "🌐 Schreiben Sie in Ihrer Sprache – wir antworten in Ihrer Sprache", es: "🌐 Escriba en su idioma – le responderemos en su idioma", ru: "🌐 Пишите на своём языке – мы ответим на вашем языке", th: "🌐 พิมพ์เป็นภาษาของคุณได้เลย – เราจะตอบกลับเป็นภาษาของคุณ" },
     chatGuestSub: { ja: "料金・時間・乗車場所など、何でもお尋ねください", fr: "Posez-nous vos questions : tarifs, horaires, lieu de prise en charge…", de: "Fragen Sie uns alles: Preise, Zeiten, Abholorte…", es: "Pregúntenos lo que quiera: tarifas, horarios, puntos de recogida…", ru: "Спросите нас о чём угодно: цены, время, место посадки…", th: "สอบถามได้ทุกเรื่อง: ค่าโดยสาร เวลา จุดรับ…" },
     chatGeneral: { ja: "💬 一般的なお問い合わせ（予約なし）", fr: "💬 Question générale (sans réservation)", de: "💬 Allgemeine Frage (ohne Buchung)", es: "💬 Consulta general (sin reserva)", ru: "💬 Общий вопрос (без брони)", th: "💬 สอบถามทั่วไป (ยังไม่ได้จอง)" },

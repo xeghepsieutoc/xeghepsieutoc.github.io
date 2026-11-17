@@ -470,7 +470,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 
   <footer>
     <div><b id="ftBrand"></b> · <span id="ftTag"></span></div>
-    <div style="margin-top:4px">Hotline: <a id="ftHot" href="#"></a> · <a href="#" id="ftInstall">Cài app</a></div>
+    <div style="margin-top:4px"><span id="ftDevLbl">Hỗ trợ tạo app</span>: <a id="ftHot" href="tel:0813631111">081.363.1111</a> · <a href="#" id="ftInstall">Cài app</a></div>
     <div style="margin-top:6px;opacity:.7" id="ftVer"></div>
   </footer>
 </main>
@@ -691,7 +691,7 @@ $("qCancel").addEventListener("click",function(){if(!LS.get("xg_hist",[]).length
 $("hotBar").href=telHref(); $("hotBarNum").textContent=String(C.HOTLINE).replace(/^(\d{4})(\d{3})(\d{3})$/,"$1.$2.$3"); $("hotBarTap").textContent=T("tapCall");
 $("callTop").href=telHref(); $("callTopTxt").textContent=C.HOTLINE_DISPLAY;
 $("ftBrand").textContent=C.BRAND; $("ftTag").textContent=L.cfg(C.TAGLINE);
-$("ftHot").textContent=C.HOTLINE_DISPLAY; $("ftHot").href=telHref();
+$("ftDevLbl").textContent=T("devHot");
 $("ftVer").textContent=T("version")+" "+C.APP_VERSION;
 $("zaloFab").href="https://zalo.me/"+C.ZALO;
 $("doneCall").href=telHref(); $("errCall").href=telHref();
