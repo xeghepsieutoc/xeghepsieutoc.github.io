@@ -20,6 +20,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="config.js"></script>
+<script src="i18n.js"></script>
 <style>
 :root{
   --g900:#0b4f30;--g800:#0d6340;--g700:#0f7a48;--g600:#169257;--g500:#22aa62;--g100:#dcf5e7;--g50:#effaf3;
@@ -40,7 +41,7 @@ a{color:inherit}
 
 /* ===== Header ===== */
 .top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.88);backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--line);padding-top:var(--safe-t)}
-.top .wrap{display:flex;align-items:center;gap:10px;height:60px}
+.top .wrap{display:flex;align-items:center;gap:10px;min-height:60px;padding-top:6px;padding-bottom:6px}
 .logo{width:38px;height:38px;border-radius:11px;flex:none;box-shadow:0 2px 8px rgba(15,122,72,.3)}
 .brand{flex:1;min-width:0}
 .brand b{display:block;font-size:17px;font-weight:800;letter-spacing:-.2px;color:var(--g800)}
@@ -230,6 +231,19 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 .ibox{border-radius:14px;padding:12px 14px;font-size:13.5px;margin-top:14px}
 .ibox.g{background:var(--g50);color:var(--g900)}
 .ibox.y{background:#fff7e6;color:#7a4b00}
+.lang{flex:none;border:1.5px solid var(--line);border-radius:999px;padding:7px 8px;font-weight:700;font-size:13px;background:#fff;color:var(--ink);max-width:104px}
+.hitem .hr small .tg{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:#fde8e8;color:var(--red);margin-left:4px}
+.cbtn{flex:none;border:1.5px solid #f3b4b4;color:var(--red);background:#fff;border-radius:10px;padding:6px 10px;font-weight:700;font-size:12.5px}
+.hitem .hx{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.rsn{display:grid;gap:8px;margin:4px 0 6px}
+.rsn label{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;font-weight:600;font-size:14.5px;cursor:pointer}
+.rsn label.on{border-color:var(--red);background:#fef2f2}
+.rsn input{width:18px;height:18px;accent-color:var(--red)}
+.btn-r{background:var(--red);color:#fff;box-shadow:0 6px 18px rgba(220,38,38,.3)}
+.gps-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;padding:10px 12px;border-radius:12px;border:1.5px dashed var(--g500);background:var(--g50);color:var(--g800);font-weight:700;font-size:14px}
+.gps-btn:disabled{opacity:.7}
+.gps-ok{font-size:12.5px;color:var(--g800);margin-top:6px;line-height:1.4}
+.gps-ok a{color:var(--g700);font-weight:700}
 .hero-install{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:16px;background:#fff;border:1.5px solid var(--g500);color:var(--g800);text-align:left;box-shadow:0 6px 18px rgba(15,122,72,.12)}
 .hero-install .hi{width:42px;height:42px;border-radius:12px;flex:none}
 .hero-install b{display:block;font-size:15px}
@@ -263,6 +277,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
   <div class="wrap">
     <img class="logo" src="icons/icon-192.png" alt="">
     <div class="brand"><b id="brandName">Xe Xanh</b><small id="brandSlogan"></small></div>
+    <select id="langSel" class="lang" aria-label="Language"></select>
     <a class="call-btn hidden" id="callTop" href="#">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
       <span class="ct"><small id="callTopLbl">Hotline hỗ trợ ứng dụng</small><b id="callTopTxt">Gọi</b></span>
@@ -357,13 +372,15 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
         <div class="errmsg">Vui lòng nhập họ tên</div>
       </label>
       <label class="field"><span>Số điện thoại <i>*</i></span>
-        <input class="inp" id="phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="VD: 0912 345 678" maxlength="15">
+        <input class="inp" id="phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="VD: 0912 345 678" maxlength="22">
         <div class="errmsg">Số điện thoại chưa đúng (10 số, bắt đầu bằng 0)</div>
       </label>
       <label class="field"><span>Điểm đón <i>*</i></span>
         <input class="inp" id="pickup" placeholder="Số nhà, đường, phường/xã…" maxlength="200">
         <div class="errmsg">Vui lòng nhập điểm đón</div>
       </label>
+      <button type="button" class="gps-btn" id="gpsBtn">📍 Dùng vị trí hiện tại của tôi</button>
+      <div class="gps-ok hidden" id="gpsOk"></div>
       <div class="achips hidden" id="pkChips"></div>
       <label class="field"><span>Điểm trả</span>
         <input class="inp" id="dropoff" placeholder="Có thể bổ sung sau khi tổng đài gọi" maxlength="200">
@@ -372,6 +389,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
       <label class="field"><span>Ghi chú</span>
         <textarea class="inp" id="note" rows="2" placeholder="Mang theo hành lý lớn, trẻ nhỏ, cần xuất hoá đơn…" maxlength="300"></textarea>
       </label>
+      <div class="ibox g hidden" id="foreignNote" style="margin-top:14px;line-height:1.55"></div>
       <input class="hp" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
     </div>
   </form>
@@ -444,6 +462,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
     <p class="sub" style="margin-bottom:4px">Mã đặt chỗ của bạn</p>
     <div class="code" id="doneCode">—</div>
     <p class="sub" id="doneMsg">Tổng đài sẽ gọi lại cho bạn trong ít phút để xác nhận và báo thông tin tài xế.</p>
+    <div class="ibox g hidden" id="foreignNote2" style="text-align:left;line-height:1.55;margin:0 0 6px"></div>
     <div class="acts">
       <a class="btn btn-p btn-w" id="doneCall" href="#">📞 Gọi tổng đài ngay</a>
       <button class="btn btn-o btn-w" data-close>Đặt thêm chuyến khác</button>
@@ -502,6 +521,22 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
   </div>
 </div>
 
+<!-- Sheet: huỷ chuyến -->
+<div class="ov" id="ovCancel">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="grab"></div>
+    <h3 id="cxTitle">Huỷ chuyến</h3>
+    <p class="sub" id="cxSub">Vui lòng cho nhà xe biết lý do huỷ</p>
+    <div class="ibox y" id="cxTrip" style="margin:0 0 12px"></div>
+    <div class="rsn" id="cxList"></div>
+    <textarea class="inp hidden" id="cxOther" rows="2" maxlength="200"></textarea>
+    <div class="acts two">
+      <button class="btn btn-o" data-close id="cxKeep">Không huỷ nữa</button>
+      <button class="btn btn-r" id="cxOk">Xác nhận huỷ chuyến</button>
+    </div>
+  </div>
+</div>
+
 <!-- Sheet: đang mở trong Zalo/Facebook -->
 <div class="ov" id="ovInapp">
   <div class="sheet center" role="dialog" aria-modal="true">
@@ -544,6 +579,8 @@ if(BASE.API_URL){
 
 function main(){
 var C = window.APP_CONFIG;
+var L = window.XG_I18N, T = L.t;
+L.apply();
 document.addEventListener("input",function(){window.__xgTouched=true;});
 document.addEventListener("click",function(e){if(e.target.closest(".tbtn,.dchip,.seg button,.stepper button"))window.__xgTouched=true;});
 var $ = function(id){return document.getElementById(id);};
@@ -560,26 +597,33 @@ function fmtMoney(k){return (k*1000).toLocaleString("vi-VN")+"đ";}
 function pad(n){return (n<10?"0":"")+n;}
 function ymd(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
 function dmy(d){return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear();}
-var WD=["CN","T2","T3","T4","T5","T6","T7"];
+var WDV=["CN","T2","T3","T4","T5","T6","T7"];               /* thứ tiếng Việt – gửi về nhà xe */
+var WD=WDV.map(function(x,i){return L.wd(i);});                /* thứ hiển thị theo ngôn ngữ */
+function svcT(k){return T("svc_"+k);}
+function pl(k){return L.place(k,placeName[k]);}
 function findRoute(a,b){for(var i=0;i<C.ROUTES.length;i++){var r=C.ROUTES[i];if((r.a===a&&r.b===b)||(r.a===b&&r.b===a))return r;}return null;}
 function destsOf(a){var o=[];C.ROUTES.forEach(function(r){if(r.a===a)o.push(r.b);else if(r.b===a)o.push(r.a);});return C.PLACES.map(function(p){return p.key;}).filter(function(k){return o.indexOf(k)>=0;});}
 function toast(html,ms){var t=$("toast");t.innerHTML=html;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("show");},ms||2600);}
 function telHref(){return "tel:"+C.HOTLINE;}
 
 /* ---------- Brand ---------- */
-document.title = "Đặt xe ghép – "+C.BRAND;
-$("brandName").textContent=C.HEADER_TITLE||C.BRAND; $("brandSlogan").textContent=C.HEADER_SUB||C.SLOGAN;
+document.title = T("title")+" – "+C.BRAND;
+$("brandName").textContent=L.cfg(C.HEADER_TITLE||C.BRAND); $("brandSlogan").textContent=L.cfg(C.HEADER_SUB||C.SLOGAN);
+/* chọn ngôn ngữ */
+$("langSel").innerHTML=L.LANGS.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===L.lang?" selected":"")+'>'+x[1]+'</option>';}).join("");
+$("langSel").addEventListener("change",function(){L.set(this.value);});
+if(L.i){$("foreignNote").innerHTML=T("foreign");$("foreignNote").classList.remove("hidden");$("foreignNote2").innerHTML=T("foreign");$("foreignNote2").classList.remove("hidden");}
 $("callTop").href=telHref(); $("callTopTxt").textContent=C.HOTLINE_DISPLAY;
-$("ftBrand").textContent=C.BRAND; $("ftTag").textContent=C.TAGLINE;
+$("ftBrand").textContent=C.BRAND; $("ftTag").textContent=L.cfg(C.TAGLINE);
 $("ftHot").textContent=C.HOTLINE_DISPLAY; $("ftHot").href=telHref();
-$("ftVer").textContent="Phiên bản "+C.APP_VERSION;
+$("ftVer").textContent=T("version")+" "+C.APP_VERSION;
 $("zaloFab").href="https://zalo.me/"+C.ZALO;
 $("doneCall").href=telHref(); $("errCall").href=telHref();
 if(!C.API_URL) $("demoBar").classList.remove("hidden");
 $("callTopLbl").textContent=C.HOTLINE_LABEL||"Hotline";
 if(C.NOTICE){$("noticeTxt").textContent=C.NOTICE;$("noticeBanner").classList.remove("hidden");}
-if(C.OPEN===false){$("noticeTxt").textContent=C.CLOSED_MSG||"Hệ thống đang tạm ngưng nhận đơn.";$("noticeBanner").classList.remove("hidden");$("bookBtn").disabled=true;$("bookBtn").textContent="Tạm ngưng nhận đơn";}
-$("hl").innerHTML=C.HIGHLIGHTS.map(function(h){return '<span class="chip">'+h.icon+" "+h.text+"</span>";}).join("");
+if(C.OPEN===false){$("noticeTxt").textContent=L.i?T("closedMsg"):(C.CLOSED_MSG||T("closedMsg"));$("noticeBanner").classList.remove("hidden");$("bookBtn").disabled=true;$("bookBtn").textContent=T("closed");}
+$("hl").innerHTML=C.HIGHLIGHTS.map(function(h){return '<span class="chip">'+h.icon+" "+L.cfg(h.text)+"</span>";}).join("");
 
 /* ---------- Service ---------- */
 var svcQ=qs.get("service"); if(SVC[svcQ]) state.svc=svcQ;
@@ -597,11 +641,11 @@ if(placeName[qf]) state.from=qf;
 if(placeName[qt]) state.to=qt;
 function renderRoute(){
   var f=$("from"),t=$("to");
-  f.innerHTML=C.PLACES.filter(function(p){return destsOf(p.key).length;}).map(function(p){return '<option value="'+p.key+'">'+p.name+'</option>';}).join("");
+  f.innerHTML=C.PLACES.filter(function(p){return destsOf(p.key).length;}).map(function(p){return '<option value="'+p.key+'">'+L.place(p.key,p.name)+'</option>';}).join("");
   f.value=state.from;
   var ds=destsOf(state.from);
   if(ds.indexOf(state.to)<0) state.to=ds[0];
-  t.innerHTML=ds.map(function(k){return '<option value="'+k+'">'+placeName[k]+'</option>';}).join("");
+  t.innerHTML=ds.map(function(k){return '<option value="'+k+'">'+pl(k)+'</option>';}).join("");
   t.value=state.to;
   updatePrice();
 }
@@ -622,18 +666,18 @@ function slotsFor(date){
 }
 function renderDates(){
   var t0=today0(),html="";
-  var labels=["Hôm nay","Ngày mai","Ngày kia"];
+  var labels=[T("today"),T("tomorrow"),T("dayafter")];
   for(var i=0;i<3;i++){
     var d=addDays(t0,i);
     html+='<button type="button" class="dchip'+(state.dateIdx===i?" on":"")+'" data-i="'+i+'"><small>'+labels[i]+'</small><b>'+WD[d.getDay()]+", "+pad(d.getDate())+"/"+pad(d.getMonth()+1)+'</b></button>';
   }
   var custom=state.dateIdx===3&&state.date;
-  html+='<label class="dchip'+(custom?" on":"")+'"><small>'+(custom?WD[state.date.getDay()]:"Ngày khác")+'</small><b>'+(custom?pad(state.date.getDate())+"/"+pad(state.date.getMonth()+1):"📅 Chọn")+'</b><input type="date" id="dpick" min="'+ymd(addDays(t0,0))+'" max="'+ymd(addDays(t0,C.MAX_DAYS_AHEAD))+'"'+(custom?' value="'+ymd(state.date)+'"':"")+'></label>';
+  html+='<label class="dchip'+(custom?" on":"")+'"><small>'+(custom?WD[state.date.getDay()]:T("otherday"))+'</small><b>'+(custom?pad(state.date.getDate())+"/"+pad(state.date.getMonth()+1):T("pick"))+'</b><input type="date" id="dpick" min="'+ymd(addDays(t0,0))+'" max="'+ymd(addDays(t0,C.MAX_DAYS_AHEAD))+'"'+(custom?' value="'+ymd(state.date)+'"':"")+'></label>';
   $("dates").innerHTML=html;
   $("dpick").addEventListener("change",function(){
     if(!this.value)return;var p=this.value.split("-");
     var d=new Date(+p[0],+p[1]-1,+p[2]);var diff=Math.round((d-today0())/864e5);
-    if(diff<0||diff>C.MAX_DAYS_AHEAD){toast("Chỉ nhận đặt trong "+C.MAX_DAYS_AHEAD+" ngày tới");return;}
+    if(diff<0||diff>C.MAX_DAYS_AHEAD){toast(T("maxDays",{n:C.MAX_DAYS_AHEAD}));return;}
     if(diff<3){state.dateIdx=diff;state.date=d;}else{state.dateIdx=3;state.date=d;}
     renderDates();renderTimes();
   });
@@ -643,9 +687,9 @@ function renderTimes(){
   if(!state.date) state.date=addDays(today0(),state.dateIdx);
   var s=slotsFor(state.date);
   // auto-chuyển sang ngày mai nếu hôm nay hết chuyến
-  if(state.dateIdx===0&&!s.some(function(x){return x.ok;})){state.dateIdx=1;state.date=addDays(today0(),1);renderDates();s=slotsFor(state.date);toast("Hôm nay đã hết khung giờ, đã chuyển sang ngày mai");}
+  if(state.dateIdx===0&&!s.some(function(x){return x.ok;})){state.dateIdx=1;state.date=addDays(today0(),1);renderDates();s=slotsFor(state.date);toast(T("outToday"));}
   if(state.time&&!s.some(function(x){return x.t===state.time&&x.ok;})) state.time=null;
-  var groups=[["🌅 Sáng sớm",0,600],["☀️ Buổi sáng",600,720],["🌤️ Buổi chiều",720,1080],["🌙 Buổi tối",1080,1440]];
+  var groups=[[T("g1"),0,600],[T("g2"),600,720],[T("g3"),720,1080],[T("g4"),1080,1440]];
   var html="";
   groups.forEach(function(g){
     var items=s.filter(function(x){return x.m>=g[1]&&x.m<g[2];});
@@ -653,8 +697,7 @@ function renderTimes(){
     html+='<div class="tgroup"><h4>'+g[0]+'</h4><div class="times">'+items.map(function(x){return '<button type="button" class="tbtn'+(state.time===x.t?" on":"")+'" data-t="'+x.t+'"'+(x.ok?"":" disabled")+'>'+x.t+'</button>';}).join("")+'</div></div>';
   });
   $("timesWrap").innerHTML=html;
-  $("timeHint").textContent= state.time ? "Đã chọn "+state.time+" – "+WD[state.date.getDay()]+", "+dmy(state.date)+". Tài xế có thể đón sớm/muộn 10–15 phút tuỳ lộ trình ghép."
-                                        : "Chọn giờ bạn muốn xuất phát (giờ đón dự kiến).";
+  $("timeHint").textContent= state.time ? T("hintSel",{t:state.time,d:WD[state.date.getDay()]+", "+dmy(state.date)}) : T("hintPick");
   updatePrice();
 }
 $("timesWrap").addEventListener("click",function(e){var b=e.target.closest(".tbtn");if(!b||b.disabled)return;state.time=b.dataset.t;renderTimes();if(navigator.vibrate)navigator.vibrate(8);});
@@ -676,22 +719,22 @@ function calc(){
 }
 function updatePrice(){
   var p=calc();
-  $("barPrice").textContent=p&&p.total?fmtMoney(p.total):"Liên hệ";
-  $("barSub").textContent=placeName[state.from]+" → "+placeName[state.to]+(state.svc==="ghep"?" · "+state.seats+" ghế":" · "+SVC[state.svc]);
-  if(state.svc==="ghep") $("seatPrice").textContent=p&&p.unit?fmtMoney(p.unit)+" / ghế":"Giá liên hệ";
+  $("barPrice").textContent=p&&p.total?fmtMoney(p.total):T("contact");
+  $("barSub").textContent=pl(state.from)+" → "+pl(state.to)+(state.svc==="ghep"?" · "+state.seats+" "+T("seats"):" · "+svcT(state.svc));
+  if(state.svc==="ghep") $("seatPrice").textContent=p&&p.unit?fmtMoney(p.unit)+T("perSeat"):T("priceContact");
 }
 
 /* ---------- Bảng giá ---------- */
 var ptab="ghep";
 function setPtab(v){ptab=v;[].forEach.call($("ptabs").children,function(b){b.classList.toggle("on",b.dataset.v===v);});renderPT();}
 function renderPT(){
-  $("ptBody").innerHTML=C.ROUTES.map(function(r,i){return '<tr data-i="'+i+'"><td>'+placeName[r.a]+'<span class="arr">⇄</span>'+placeName[r.b]+'</td><td>'+(r[ptab]?fmtMoney(r[ptab]):"Liên hệ")+'</td></tr>';}).join("");
+  $("ptBody").innerHTML=C.ROUTES.map(function(r,i){return '<tr data-i="'+i+'"><td>'+pl(r.a)+'<span class="arr">⇄</span>'+pl(r.b)+'</td><td>'+(r[ptab]?fmtMoney(r[ptab]):T("contact"))+'</td></tr>';}).join("");
 }
 $("ptabs").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setPtab(b.dataset.v);});
 $("ptBody").addEventListener("click",function(e){
   var tr=e.target.closest("tr");if(!tr)return;var r=C.ROUTES[+tr.dataset.i];
   state.from=r.a;state.to=r.b;state.svc=ptab;renderRoute();renderSvc();
-  window.scrollTo({top:0,behavior:"smooth"});toast("Đã chọn "+placeName[r.a]+" → "+placeName[r.b]);
+  window.scrollTo({top:0,behavior:"smooth"});toast(T("chosen",{r:pl(r.a)+" → "+pl(r.b)}));
 });
 
 /* ---------- Form ---------- */
@@ -704,7 +747,7 @@ if(saved.pickup&&ADDR.pickup.indexOf(saved.pickup)<0)ADDR.pickup.unshift(saved.p
 function renderAddr(kind){
   var box=$(kind==="pickup"?"pkChips":"dpChips"),L=(ADDR[kind]||[]).slice(0,5),cur=$(kind).value.trim();
   box.classList.toggle("hidden",!L.length);
-  box.innerHTML=L.length?'<div class="lbl">'+(kind==="pickup"?"📍 Chọn nhanh điểm đón đã dùng:":"🏁 Điểm trả đã dùng:")+'</div>'+L.map(function(a,i){return '<span class="achip'+(a===cur?" on":"")+'" data-i="'+i+'"><span>'+esc(a)+'</span><i data-del="'+i+'" title="Xoá">×</i></span>';}).join(""):"";
+  box.innerHTML=L.length?'<div class="lbl">'+(kind==="pickup"?T("pkLbl"):T("dpLbl"))+'</div>'+L.map(function(a,i){return '<span class="achip'+(a===cur?" on":"")+'" data-i="'+i+'"><span>'+esc(a)+'</span><i data-del="'+i+'" title="Xoá">×</i></span>';}).join(""):"";
 }
 ["pickup","dropoff"].forEach(function(kind){
   var box=$(kind==="pickup"?"pkChips":"dpChips");
@@ -712,18 +755,39 @@ function renderAddr(kind){
     var d=e.target.closest("[data-del]");
     if(d){ADDR[kind].splice(+d.dataset.del,1);LS.set("xg_addrs",ADDR);renderAddr(kind);return;}
     var c=e.target.closest(".achip");if(!c)return;
-    $(kind).value=ADDR[kind][+c.dataset.i];$(kind).classList.remove("err");renderAddr(kind);
+    $(kind).value=ADDR[kind][+c.dataset.i];$(kind).classList.remove("err");renderAddr(kind);if(kind==="pickup")setGps("");
   });
   $(kind).addEventListener("input",function(){renderAddr(kind);});
   renderAddr(kind);
 });
+/* ---------- Định vị GPS cho điểm đón ---------- */
+var GPS="";
+function setGps(v,acc){GPS=v;var b=$("gpsOk");if(!v){b.classList.add("hidden");return;}
+  b.innerHTML="✅ "+T("gpsOk",{m:Math.round(acc||0)})+' · <a href="https://www.google.com/maps/search/?api=1&query='+v+'" target="_blank" rel="noopener">'+T("gpsMap")+"</a>";b.classList.remove("hidden");}
+$("gpsBtn").textContent=T("gpsBtn");
+$("pickup").addEventListener("input",function(e){if(e.isTrusted&&GPS)setGps("");});
+$("gpsBtn").addEventListener("click",function(){
+  var b=this;
+  if(!navigator.geolocation){toast(T("gpsFail"),4000);return;}
+  b.disabled=true;b.innerHTML='<span class="spin" style="border-color:rgba(15,122,72,.25);border-top-color:#0f7a48"></span> '+T("gpsLoading");
+  var reset=function(){b.disabled=false;b.textContent=T("gpsBtn");};
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var la=pos.coords.latitude.toFixed(6),lo=pos.coords.longitude.toFixed(6),acc=pos.coords.accuracy,ll=la+","+lo;
+    var fill=function(addr){$("pickup").value=addr;$("pickup").classList.remove("err");renderAddr("pickup");setGps(ll,acc);reset();};
+    fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=0&accept-language=vi&lat="+la+"&lon="+lo)
+      .then(function(r){return r.json();})
+      .then(function(j){var n=String(j&&j.display_name||"").split(",").map(function(x){return x.trim();}).filter(function(x){return x&&!/^\d{5,6}$/.test(x)&&x!=="Việt Nam";});
+        fill(n.slice(0,5).join(", ")||T("gpsNoAddr"));})
+      .catch(function(){fill(T("gpsNoAddr"));});
+  },function(err){reset();toast(err&&err.code===1?T("gpsDenied"):T("gpsFail"),5000);},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+});
 function rememberAddr(kind,v){if(!v)return;var L=ADDR[kind]||[];var i=L.indexOf(v);if(i>=0)L.splice(i,1);L.unshift(v);ADDR[kind]=L.slice(0,5);LS.set("xg_addrs",ADDR);}
 function normPhone(v){v=(v||"").replace(/[^\d+]/g,"");if(v.indexOf("+84")===0)v="0"+v.slice(3);else if(v.indexOf("84")===0&&v.length===11)v="0"+v.slice(2);return v;}
-function validPhone(v){return /^0(3|5|7|8|9)\d{8}$/.test(v)||/^02\d{9}$/.test(v);}
+function validPhone(v){return /^0(3|5|7|8|9)\d{8}$/.test(v)||/^02\d{9}$/.test(v)||/^\+\d{8,15}$/.test(v);}   /* +86…, +82… cho khách nước ngoài */
 function mark(id,bad){$(id).classList.toggle("err",bad);return !bad;}
 ["name","phone","pickup"].forEach(function(id){$(id).addEventListener("input",function(){this.classList.remove("err");});});
 function validate(){
-  if(!state.time){toast("⏰ Vui lòng chọn giờ đi");document.getElementById("dates").scrollIntoView({behavior:"smooth",block:"center"});return false;}
+  if(!state.time){toast(T("needTime"));document.getElementById("dates").scrollIntoView({behavior:"smooth",block:"center"});return false;}
   var ok=true,first=null;
   if(!mark("name",$("name").value.trim().length<2)){ok=false;first=first||"name";}
   if(!mark("phone",!validPhone(normPhone($("phone").value)))){ok=false;first=first||"phone";}
@@ -737,10 +801,11 @@ function buildOrder(){
   return {
     service:state.svc, serviceName:SVC[state.svc],
     from:placeName[state.from], to:placeName[state.to],
-    date:dmy(state.date), weekday:WD[state.date.getDay()], time:state.time,
+    date:dmy(state.date), weekday:WDV[state.date.getDay()], time:state.time,
     seats:state.svc==="ghep"?state.seats:"", price:p?p.total*1000:0,
     name:$("name").value.trim(), phone:normPhone($("phone").value),
-    pickup:$("pickup").value.trim(), dropoff:$("dropoff").value.trim(), note:$("note").value.trim(),
+    pickup:GPS?$("pickup").value.trim().slice(0,170)+" 📍"+GPS:$("pickup").value.trim(), dropoff:$("dropoff").value.trim(),
+    note:(L.i?T("noteLang")+($("note").value.trim()?" · "+$("note").value.trim():""):$("note").value.trim()),
     src:state.src, website:$("website").value,
     standalone:isStandalone(), ua:navigator.userAgent.slice(0,180)
   };
@@ -749,23 +814,23 @@ var pending=null;
 $("bookBtn").addEventListener("click",function(){
   if(!validate())return;
   pending=buildOrder();
-  var o=pending,rows=[
-    ["Loại xe",o.serviceName+(o.seats?" · "+o.seats+" ghế":"")],
-    ["Tuyến",o.from+" → "+o.to],
-    ["Ngày giờ",o.time+" · "+o.weekday+", "+o.date],
-    ["Họ tên",o.name],["Điện thoại",o.phone],
-    ["Điểm đón",o.pickup]];
-  if(o.dropoff)rows.push(["Điểm trả",o.dropoff]);
-  if(o.note)rows.push(["Ghi chú",o.note]);
-  var h=rows.map(function(r){return r[0]==="Điểm đón"?'<div class="pk"><span>📍 Điểm đón</span><b>'+esc(r[1])+'</b><a href="#" id="pkEdit">✏️ Đổi điểm đón</a></div>':"<div><span>"+r[0]+"</span><b>"+esc(r[1])+"</b></div>";}).join("");
-  h+='<div class="tot"><span>Tạm tính</span><b>'+(o.price?o.price.toLocaleString("vi-VN")+"đ":"Liên hệ")+'</b></div>';
+  var o=pending,userNote=$("note").value.trim(),rows=[
+    [T("lbSvc"),svcT(state.svc)+(o.seats?" · "+o.seats+" "+T("seats"):"")],
+    [T("lbRoute"),pl(state.from)+" → "+pl(state.to)],
+    [T("lbTime"),o.time+" · "+WD[state.date.getDay()]+", "+o.date],
+    [T("lbName"),o.name],[T("lbPhone"),o.phone],
+    ["@pk",o.pickup]];
+  if(o.dropoff)rows.push([T("lbDrop"),o.dropoff]);
+  if(userNote)rows.push([T("lbNote"),userNote]);
+  var h=rows.map(function(r){return r[0]==="@pk"?'<div class="pk"><span>'+T("lbPick")+'</span><b>'+esc(r[1])+'</b><a href="#" id="pkEdit">'+T("editPick")+'</a></div>':"<div><span>"+r[0]+"</span><b>"+esc(r[1])+"</b></div>";}).join("");
+  h+='<div class="tot"><span>'+T("lbTotal")+'</span><b>'+(o.price?o.price.toLocaleString("vi-VN")+"đ":T("contact"))+'</b></div>';
   $("cfList").innerHTML=h;
   $("pkEdit").onclick=function(e){e.preventDefault();closeOv("ovConfirm");var p=$("pickup");p.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(function(){p.focus();p.select();},350);};
   openOv("ovConfirm");
 });
 
 function genCode(){var d=new Date();var c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",s="";for(var i=0;i<3;i++)s+=c[Math.floor(Math.random()*c.length)];return "XG"+pad(d.getDate())+pad(d.getMonth()+1)+"-"+s;}
-function setLoading(on){var b=$("sendBtn");b.disabled=on;b.innerHTML=on?'<span class="spin"></span> Đang gửi…':"Gửi đặt xe";}
+function setLoading(on){var b=$("sendBtn");b.disabled=on;b.innerHTML=on?'<span class="spin"></span> '+T("sending"):T("send");}
 
 function send(){
   if(!pending)return;
@@ -780,7 +845,7 @@ function send(){
     .then(function(r){return r.json();})
     .then(function(j){clearTimeout(timer);setLoading(false);
       if(j&&j.ok){done(j.code,false);}
-      else{fail(j&&j.error?j.error:"Máy chủ chưa nhận được đơn.");}})
+      else{fail(j&&j.error?j.error:T("netErr"));}})
     .catch(function(){clearTimeout(timer);setLoading(false);fail();});
 }
 $("sendBtn").addEventListener("click",send);
@@ -789,29 +854,64 @@ $("retryBtn").addEventListener("click",function(){closeOv("ovErr");openOv("ovCon
 function done(code,demo){
   closeOv("ovConfirm");
   $("doneCode").textContent=code;
-  $("doneMsg").textContent=demo?"(Chế độ DEMO – đơn chưa được gửi đi. Gắn API_URL trong config.js để nhận Telegram.)":"Tổng đài sẽ gọi lại số "+pending.phone+" trong ít phút để xác nhận và báo thông tin tài xế.";
+  $("doneMsg").textContent=demo?"(Chế độ DEMO – đơn chưa được gửi đi. Gắn API_URL trong config.js để nhận Telegram.)":T("doneMsg",{p:pending.phone});
   var h=LS.get("xg_hist",[]);
-  h.unshift({code:code,from:pending.from,to:pending.to,date:pending.date,time:pending.time,svc:pending.serviceName,seats:pending.seats,at:Date.now()});
+  h.unshift({code:code,from:pending.from,to:pending.to,fk:state.from,tk:state.to,sv:state.svc,date:pending.date,time:pending.time,svc:pending.serviceName,seats:pending.seats,phone:pending.phone,at:Date.now()});
   LS.set("xg_hist",h.slice(0,10));renderHist();
-  rememberAddr("pickup",pending.pickup);rememberAddr("dropoff",pending.dropoff);
+  rememberAddr("pickup",pending.pickup.replace(/ 📍-?[\d.]+,-?[\d.]+$/,""));rememberAddr("dropoff",pending.dropoff);setGps("");
   $("pickup").value="";$("dropoff").value="";$("note").value="";renderAddr("pickup");renderAddr("dropoff");
   openOv("ovDone");
   if(navigator.vibrate)navigator.vibrate([20,40,20]);
 }
 function fail(msg){
   closeOv("ovConfirm");
-  if(msg)$("errMsg").textContent=msg+" Bạn có thể thử lại hoặc gọi / nhắn Zalo để đặt nhanh.";
+  if(msg)$("errMsg").textContent=msg+T("failTail");
   var o=pending;
   var txt="Đặt xe: "+o.serviceName+(o.seats?" "+o.seats+" ghế":"")+"\nTuyến: "+o.from+" → "+o.to+"\nGiờ: "+o.time+" "+o.date+"\nTên: "+o.name+" - "+o.phone+"\nĐón: "+o.pickup+(o.dropoff?"\nTrả: "+o.dropoff:"")+(o.note?"\nGhi chú: "+o.note:"");
   $("errZalo").href="https://zalo.me/"+C.ZALO;
-  $("errZalo").onclick=function(){try{navigator.clipboard.writeText(txt);toast("Đã copy thông tin – dán vào khung chat Zalo",3500);}catch(e){}};
+  $("errZalo").onclick=function(){try{navigator.clipboard.writeText(txt);toast(T("copiedZalo"),3500);}catch(e){}};
   openOv("ovErr");
 }
+function tripTime(x){var m=String(x.date||"").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/),t=String(x.time||"").match(/(\d+):(\d+)/);return m?new Date(+m[3],+m[2]-1,+m[1],t?+t[1]:23,t?+t[2]:59).getTime():0;}
 function renderHist(){
   var h=LS.get("xg_hist",[]);
   $("histCard").classList.toggle("hidden",!h.length);
-  $("hist").innerHTML=h.map(function(x){return '<div class="hitem"><div class="hr"><b>'+esc(x.from)+" → "+esc(x.to)+'</b><small>'+esc(x.time)+" · "+esc(x.date)+" · "+esc(x.svc)+(x.seats?" · "+x.seats+" ghế":"")+'</small></div><code>'+esc(x.code)+'</code></div>';}).join("");
+  $("hist").innerHTML=h.map(function(x,i){
+    var canCancel=!x.cancelled&&tripTime(x)>Date.now();
+    var from=x.fk?pl(x.fk):x.from,to=x.tk?pl(x.tk):x.to,sv=x.sv?svcT(x.sv):x.svc;
+    return '<div class="hitem"><div class="hr"><b>'+esc(from)+" → "+esc(to)+'</b><small>'+esc(x.time)+" · "+esc(x.date)+" · "+esc(sv)+(x.seats?" · "+x.seats+" "+T("seats"):"")+(x.cancelled?'<span class="tg">'+T("cancelled")+'</span>':"")+'</small></div>'+
+      '<div class="hx"><code>'+esc(x.code)+'</code>'+(canCancel?'<button type="button" class="cbtn" data-cx="'+i+'">'+T("cancelBtn")+'</button>':"")+'</div></div>';}).join("");
 }
+/* ---------- Huỷ chuyến ---------- */
+var cxIdx=-1,cxR=-1;
+$("hist").addEventListener("click",function(e){var b=e.target.closest("[data-cx]");if(!b)return;openCancel(+b.dataset.cx);});
+function openCancel(i){
+  var x=LS.get("xg_hist",[])[i];if(!x)return;cxIdx=i;cxR=-1;
+  $("cxTitle").textContent=T("cancelTitle",{c:x.code});$("cxSub").textContent=T("cancelSub");
+  $("cxTrip").textContent=(x.fk?pl(x.fk):x.from)+" → "+(x.tk?pl(x.tk):x.to)+" · "+x.time+" · "+x.date;
+  $("cxList").innerHTML=L.reasons().map(function(r,k){return '<label data-k="'+k+'"><input type="radio" name="cxr"> '+esc(r)+'</label>';}).join("");
+  $("cxOther").classList.add("hidden");$("cxOther").value="";$("cxOther").placeholder=T("otherPh");
+  $("cxKeep").textContent=T("keep");$("cxOk").textContent=T("confirmCancel");$("cxOk").disabled=false;
+  openOv("ovCancel");
+}
+$("cxList").addEventListener("click",function(e){var l=e.target.closest("label");if(!l)return;cxR=+l.dataset.k;
+  [].forEach.call(this.children,function(c){c.classList.toggle("on",c===l);});l.querySelector("input").checked=true;
+  var other=cxR===L.reasons().length-1;$("cxOther").classList.toggle("hidden",!other);if(other)$("cxOther").focus();});
+$("cxOk").addEventListener("click",function(){
+  var H=LS.get("xg_hist",[]),x=H[cxIdx];if(!x)return;
+  if(cxR<0){toast(T("pickReason"));return;}
+  var other=cxR===L.reasons().length-1,txt=$("cxOther").value.trim();
+  if(other&&txt.length<2){toast(T("pickReason"));$("cxOther").focus();return;}
+  var reason=L.reasonsVi()[cxR]+(txt?": "+txt:"")+(L.i?" ("+L.lang.toUpperCase()+")":"");
+  var phone=x.phone||(LS.get("xg_profile",{}).phone)||"";
+  var b=this;b.disabled=true;b.innerHTML='<span class="spin"></span> '+T("cancelling");
+  var finish=function(){H[cxIdx].cancelled=true;LS.set("xg_hist",H);renderHist();closeOv("ovCancel");toast(T("cancelOk"),4000);};
+  if(!C.API_URL){setTimeout(finish,500);return;}
+  fetch(C.API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"cancel",code:x.code,phone:phone,reason:reason})})
+    .then(function(r){return r.json();})
+    .then(function(j){if(j&&j.ok)finish();else{b.disabled=false;b.textContent=T("confirmCancel");toast("⚠️ "+(j&&j.error||T("netErr")),4000);}})
+    .catch(function(){b.disabled=false;b.textContent=T("confirmCancel");toast("⚠️ "+T("netErr")+T("failTail"),4500);});
+});
 
 /* ---------- Overlays ---------- */
 function openOv(id){$(id).classList.add("show");document.body.style.overflow="hidden";}
@@ -828,7 +928,7 @@ var inapp=/Zalo/i.test(ua)?"Zalo":/FBAN|FBAV|FB_IAB|FBIOS/i.test(ua)?"Facebook":
 function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;}
 var deferred=null;
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e;$("nativeInstall").classList.remove("hidden");showInstallBanner();});
-window.addEventListener("appinstalled",function(){deferred=null;$("installBanner").classList.add("hidden");$("heroInstall").classList.add("hidden");closeOv("ovInstall");toast("🎉 Đã cài app thành công!");});
+window.addEventListener("appinstalled",function(){deferred=null;$("installBanner").classList.add("hidden");$("heroInstall").classList.add("hidden");closeOv("ovInstall");toast(T("installed"));});
 function showInstallBanner(){
   if(isStandalone()||!$("heroInstall").classList.contains("hidden"))return;
   var snooze=LS.get("xg_install_snooze",0);
@@ -868,7 +968,7 @@ function openInapp(auto){
   var ar=$("iaArrow");ar.style.display="block";setTimeout(function(){ar.style.display="none";},9000);
 }
 $("iaOpen").addEventListener("click",function(e){e.preventDefault();tryExternal();});
-$("iaCopy").addEventListener("click",function(){var u=extUrl();(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){toast("Đã copy link – mở Chrome/Safari rồi dán vào ô địa chỉ",4000);}).catch(function(){window.prompt&&prompt("Copy link này:",u);});});
+$("iaCopy").addEventListener("click",function(){var u=extUrl();(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){toast(T("copiedLink"),4000);}).catch(function(){window.prompt&&prompt("Copy link này:",u);});});
 $("inappOpen").addEventListener("click",function(){openInapp(false);});
 function doInstall(){
   if(inapp){openInapp(false);return;}
@@ -892,7 +992,7 @@ if("serviceWorker" in navigator&&location.protocol!=="file:"){
       var nw=reg.installing;
       nw&&nw.addEventListener("statechange",function(){
         if(nw.state==="installed"&&navigator.serviceWorker.controller){
-          toast('Đã có phiên bản mới <button id="reloadBtn">Tải lại</button>',10000);
+          toast(T("newVer")+' <button id="reloadBtn">'+T("reload")+'</button>',10000);
           setTimeout(function(){var b=$("reloadBtn");b&&b.addEventListener("click",function(){location.reload();});},50);
         }
       });
