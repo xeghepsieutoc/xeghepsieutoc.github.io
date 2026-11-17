@@ -51,6 +51,11 @@ a{color:inherit}
 .call-btn .ct{display:flex;flex-direction:column;line-height:1.15}
 .call-btn .ct small{font-size:10px;font-weight:600;opacity:.88;white-space:nowrap}
 .call-btn .ct b{font-size:14px;white-space:nowrap}
+.hotbar{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(90deg,var(--g800),var(--g600));color:#fff;text-decoration:none;padding:7px 12px;font-size:14px;font-weight:600;letter-spacing:.1px}
+.hotbar svg{width:16px;height:16px;flex:none;animation:ring 2.4s ease-in-out infinite}
+.hotbar b{font-size:16px;font-weight:800;letter-spacing:.4px}
+.hotbar .tap{font-size:11.5px;font-weight:700;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:999px;white-space:nowrap}
+@keyframes ring{0%,60%,100%{transform:rotate(0)}65%,75%{transform:rotate(-14deg)}70%,80%{transform:rotate(14deg)}}
 
 /* ===== Banners ===== */
 .banner{margin:12px 0 0;border-radius:var(--r-sm);padding:12px 14px;display:flex;gap:12px;align-items:center;font-size:13.5px}
@@ -283,6 +288,10 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
       <span class="ct"><small id="callTopLbl">Hotline hỗ trợ ứng dụng</small><b id="callTopTxt">Gọi</b></span>
     </a>
   </div>
+  <a class="hotbar" id="hotBar" href="#">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+    <span>Hotline:</span><b id="hotBarNum"></b><span class="tap" id="hotBarTap">Bấm để gọi</span>
+  </a>
 </header>
 
 <main class="wrap">
@@ -613,6 +622,7 @@ $("brandName").textContent=L.cfg(C.HEADER_TITLE||C.BRAND); $("brandSlogan").text
 $("langSel").innerHTML=L.LANGS.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===L.lang?" selected":"")+'>'+x[1]+'</option>';}).join("");
 $("langSel").addEventListener("change",function(){L.set(this.value);});
 if(L.i){$("foreignNote").innerHTML=T("foreign");$("foreignNote").classList.remove("hidden");$("foreignNote2").innerHTML=T("foreign");$("foreignNote2").classList.remove("hidden");}
+$("hotBar").href=telHref(); $("hotBarNum").textContent=String(C.HOTLINE).replace(/^(\d{4})(\d{3})(\d{3})$/,"$1.$2.$3"); $("hotBarTap").textContent=({vi:"Bấm để gọi",en:"Tap to call",zh:"点击拨打",ko:"눌러서 전화"})[L.lang]||"Bấm để gọi";
 $("callTop").href=telHref(); $("callTopTxt").textContent=C.HOTLINE_DISPLAY;
 $("ftBrand").textContent=C.BRAND; $("ftTag").textContent=L.cfg(C.TAGLINE);
 $("ftHot").textContent=C.HOTLINE_DISPLAY; $("ftHot").href=telHref();
