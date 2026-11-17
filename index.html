@@ -220,6 +220,15 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 .ibox{border-radius:14px;padding:12px 14px;font-size:13.5px;margin-top:14px}
 .ibox.g{background:var(--g50);color:var(--g900)}
 .ibox.y{background:#fff7e6;color:#7a4b00}
+.hero-install{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:16px;background:#fff;border:1.5px solid var(--g500);color:var(--g800);text-align:left;box-shadow:0 6px 18px rgba(15,122,72,.12)}
+.hero-install .hi{width:42px;height:42px;border-radius:12px;flex:none}
+.hero-install b{display:block;font-size:15px}
+.hero-install small{display:block;font-size:12.5px;color:var(--mut)}
+.hero-install .go{margin-left:auto;background:var(--g700);color:#fff;font-weight:700;border-radius:999px;padding:7px 12px;font-size:13px;white-space:nowrap}
+.banner .bb2{flex:none;background:#7a4b00;color:#fff;font-weight:700;border-radius:999px;padding:8px 12px;font-size:12.5px}
+.ia-arrow{position:fixed;top:calc(6px + var(--safe-t));right:10px;z-index:75;background:#fff;color:#7a4b00;font-weight:700;font-size:13px;padding:8px 12px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;animation:bob 1s ease-in-out infinite}
+.ia-arrow::before{content:"";position:absolute;top:-7px;right:16px;border:8px solid transparent;border-bottom-color:#fff;border-top:0}
+@keyframes bob{50%{transform:translateY(5px)}}
 .arrow-hint{position:fixed;left:50%;bottom:calc(8px + var(--safe-b));transform:translateX(-50%);z-index:70;background:#111;color:#fff;font-size:13px;padding:10px 14px;border-radius:12px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.3);text-align:center;width:max-content;max-width:90vw}
 .arrow-hint::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:8px solid transparent;border-top-color:#111;border-bottom:0}
 
@@ -256,7 +265,8 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
   <!-- Mở trong Zalo/Facebook -->
   <div id="inappBanner" class="banner warn hidden">
     <div class="bi">🌐</div>
-    <div class="bt"><b>Đang mở trong <span id="inappName">ứng dụng</span></b>Bấm <b style="display:inline">⋯</b> góc trên → <b style="display:inline">Mở bằng trình duyệt</b> để cài app vào điện thoại.</div>
+    <div class="bt"><b>Đang mở trong <span id="inappName">ứng dụng</span></b>Mở bằng trình duyệt để cài app vào điện thoại.</div>
+    <button class="bb2" id="inappOpen">Mở trình duyệt</button>
   </div>
 
   <!-- Thông báo từ trang quản lý -->
@@ -277,6 +287,11 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
     <h1>Đặt xe ghép<br><em>chỉ trong 30 giây</em></h1>
     <p id="heroSub">Chọn tuyến · Chọn giờ · Bấm đặt – tổng đài gọi lại xác nhận ngay.</p>
     <div class="chips" id="hl"></div>
+    <button type="button" class="hero-install hidden" id="heroInstall">
+      <img class="hi" src="icons/icon-192.png" alt="">
+      <span><b>Cài app đặt xe vào điện thoại</b><small>Miễn phí · 1 chạm đặt xe lần sau</small></span>
+      <span class="go">📲 Cài app</span>
+    </button>
   </section>
 
   <form id="bookForm" novalidate autocomplete="on">
@@ -474,6 +489,23 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
     <div class="acts"><button class="btn btn-o btn-w" data-close>Để sau</button></div>
   </div>
 </div>
+
+<!-- Sheet: đang mở trong Zalo/Facebook -->
+<div class="ov" id="ovInapp">
+  <div class="sheet center" role="dialog" aria-modal="true">
+    <div class="grab"></div>
+    <div style="font-size:44px;margin:4px 0">🌐</div>
+    <h3>Mở bằng <span id="iaBrowser">trình duyệt</span> để cài app</h3>
+    <p class="sub">Bạn đang mở trong <b id="iaApp">Zalo</b> – ứng dụng này không cho cài app. Mở bằng trình duyệt để cài app đặt xe ra màn hình chính.</p>
+    <div class="acts">
+      <a class="btn btn-p btn-w" id="iaOpen" href="#">🚀 Mở bằng <span id="iaBrowser2">trình duyệt</span></a>
+      <div class="ibox y" id="iaManual" style="text-align:left;margin-top:0">Nếu chưa tự mở: bấm nút <b>⋯</b> hoặc <b>⋮</b> ở <b>góc trên bên phải</b> → chọn <b>“Mở bằng trình duyệt”</b> / <b>“Mở trong Safari”</b>.</div>
+      <button class="btn btn-o btn-w" id="iaCopy">📋 Copy link để dán vào trình duyệt</button>
+      <button class="btn btn-o btn-w" data-close>Đặt xe luôn tại đây</button>
+    </div>
+  </div>
+</div>
+<div class="ia-arrow" id="iaArrow">Bấm ⋯ ở đây ↗ → Mở bằng trình duyệt</div>
 
 <div class="arrow-hint" id="iosArrow">Bấm <b>Chia sẻ</b> ⬆️ bên dưới → <b>Thêm vào MH chính</b></div>
 <div class="toast" id="toast"></div>
@@ -763,9 +795,9 @@ var inapp=/Zalo/i.test(ua)?"Zalo":/FBAN|FBAV|FB_IAB|FBIOS/i.test(ua)?"Facebook":
 function isStandalone(){return window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;}
 var deferred=null;
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e;$("nativeInstall").classList.remove("hidden");showInstallBanner();});
-window.addEventListener("appinstalled",function(){deferred=null;$("installBanner").classList.add("hidden");closeOv("ovInstall");toast("🎉 Đã cài app thành công!");});
+window.addEventListener("appinstalled",function(){deferred=null;$("installBanner").classList.add("hidden");$("heroInstall").classList.add("hidden");closeOv("ovInstall");toast("🎉 Đã cài app thành công!");});
 function showInstallBanner(){
-  if(isStandalone())return;
+  if(isStandalone()||!$("heroInstall").classList.contains("hidden"))return;
   var snooze=LS.get("xg_install_snooze",0);
   if(Date.now()-snooze<3*864e5)return;
   $("installBanner").classList.remove("hidden");
@@ -780,14 +812,46 @@ function openInstall(){
   openOv("ovInstall");
   if(isIOS&&!inapp){var a=$("iosArrow");a.style.display="block";setTimeout(function(){a.style.display="none";},6000);}
 }
-$("installOpen").addEventListener("click",function(){if(deferred&&!isIOS){deferred.prompt();deferred.userChoice.then(function(){deferred=null;});}else openInstall();});
-$("ftInstall").addEventListener("click",function(e){e.preventDefault();openInstall();});
+$("installOpen").addEventListener("click",function(){doInstall();});
+$("ftInstall").addEventListener("click",function(e){e.preventDefault();doInstall();});
 $("nativeInstall").addEventListener("click",function(){if(deferred){deferred.prompt();deferred.userChoice.then(function(c){if(c.outcome==="accepted")closeOv("ovInstall");deferred=null;$("nativeInstall").classList.add("hidden");});}});
 $("installClose").addEventListener("click",function(){LS.set("xg_install_snooze",Date.now());$("installBanner").classList.add("hidden");});
 $("igName1").textContent=$("igName2").textContent="Đặt Xe Ghép";
-if(inapp&&!isStandalone()){$("inappName").textContent=inapp;$("inappBanner").classList.remove("hidden");}
+/* --- Mở từ Zalo/Facebook: tự chuyển sang Chrome (Android) / Safari (iPhone) --- */
+function extUrl(){var u=new URL(location.href);u.searchParams.set("install","1");u.searchParams.delete("ia");return u.toString();}
+function openUrl(){
+  var u=extUrl();
+  if(isAndroid){var fb=new URL(u);fb.searchParams.set("ia","1");
+    return "intent://"+u.replace(/^https?:\/\//,"")+"#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url="+encodeURIComponent(fb.toString())+";end";}
+  if(isIOS)return "x-safari-"+u;
+  return u;
+}
+function tryExternal(){try{location.href=openUrl();}catch(e){}}
+function openInapp(auto){
+  var br=isIOS?"Safari":"Chrome";
+  $("iaApp").textContent=inapp;$("iaBrowser").textContent=br;$("iaBrowser2").textContent=br;
+  $("iaOpen").href=openUrl();
+  openOv("ovInapp");
+  var ar=$("iaArrow");ar.style.display="block";setTimeout(function(){ar.style.display="none";},9000);
+  if(auto)setTimeout(tryExternal,400);
+}
+$("iaOpen").addEventListener("click",function(e){e.preventDefault();tryExternal();});
+$("iaCopy").addEventListener("click",function(){var u=extUrl();(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){toast("Đã copy link – mở Chrome/Safari rồi dán vào ô địa chỉ",4000);}).catch(function(){window.prompt&&prompt("Copy link này:",u);});});
+$("inappOpen").addEventListener("click",function(){openInapp(false);});
+function doInstall(){
+  if(inapp){openInapp(false);return;}
+  if(deferred&&!isIOS){deferred.prompt();deferred.userChoice.then(function(c){if(c.outcome==="accepted")$("heroInstall").classList.add("hidden");deferred=null;});}
+  else openInstall();
+}
+$("heroInstall").addEventListener("click",doInstall);
+if(!isStandalone())$("heroInstall").classList.remove("hidden");
+if(inapp&&!isStandalone()){
+  $("inappName").textContent=inapp;$("inappBanner").classList.remove("hidden");
+  var tried=false;try{tried=!!sessionStorage.getItem("xg_ia");sessionStorage.setItem("xg_ia","1");}catch(e){}
+  setTimeout(function(){openInapp(!tried&&qs.get("ia")!=="1");},500);
+}
 else if(!isStandalone()&&(isIOS||isAndroid||!("onbeforeinstallprompt" in window))) showInstallBanner();
-if(qs.get("install")==="1"&&!isStandalone()) setTimeout(openInstall,600);
+if(qs.get("install")==="1"&&!isStandalone()&&!inapp) setTimeout(function(){if(deferred&&!isIOS)$("nativeInstall").classList.remove("hidden");openInstall();},800);
 
 /* ---------- Service worker ---------- */
 if("serviceWorker" in navigator&&location.protocol!=="file:"){
