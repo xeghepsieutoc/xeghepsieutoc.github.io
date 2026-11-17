@@ -141,6 +141,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13.5px}
   <input id="ph" class="f" type="tel" inputmode="tel" placeholder="Số điện thoại của bạn" autocomplete="tel" style="margin-bottom:8px">
   <input id="pw" class="f" type="password" placeholder="Mật khẩu" autocomplete="current-password">
   <div style="font-size:12.5px;color:#6b7d73;margin-top:8px;line-height:1.5">Chủ nhà xe: số 0813631111 + mật khẩu quản lý.<br>Nhân viên / tài xế: số của mình + mật khẩu người xem (chỉ xem).</div>
+  <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px;font-weight:600;cursor:pointer"><input type="checkbox" id="remember" checked style="width:18px;height:18px;accent-color:#0f7a48"> Ghi nhớ đăng nhập trên máy này</label>
   <button class="btn" style="width:100%;margin-top:10px;justify-content:center" id="lbtn">Đăng nhập</button>
   <div class="err" id="lerr"></div>
 </div>
@@ -346,7 +347,7 @@ function login(p,ph){
   $("lbtn").disabled=true;$("lerr").textContent="";
   PW=p;PH=ph||"";
   call("login").then(function(info){
-    INFO=info||{};ROLE=INFO.role||"owner";try{localStorage.setItem("xg_adm_pw",p);localStorage.setItem("xg_adm_ph",PH);}catch(e){}
+    INFO=info||{};ROLE=INFO.role||"owner";try{localStorage.setItem("xg_adm_ph",PH);if($("remember").checked)localStorage.setItem("xg_adm_pw",p);else localStorage.removeItem("xg_adm_pw");}catch(e){}
     document.body.classList.toggle("ro",ROLE!=="owner");
     if(ROLE!=="owner"&&(curTab==="gia"||curTab==="cd"))curTab="don";
     $("lg").classList.add("hide");$("app").classList.remove("hide");
