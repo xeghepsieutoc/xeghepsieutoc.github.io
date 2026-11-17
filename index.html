@@ -41,11 +41,11 @@ a{color:inherit}
 
 /* ===== Header ===== */
 .top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.88);backdrop-filter:saturate(1.6) blur(14px);-webkit-backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--line);padding-top:var(--safe-t)}
-.top .wrap{display:flex;align-items:center;gap:10px;min-height:60px;padding-top:6px;padding-bottom:6px}
-.logo{width:38px;height:38px;border-radius:11px;flex:none;box-shadow:0 2px 8px rgba(15,122,72,.3)}
+.top .wrap{display:flex;align-items:center;gap:8px;min-height:52px;padding-top:5px;padding-bottom:5px}
+.logo{width:34px;height:34px;border-radius:11px;flex:none;box-shadow:0 2px 8px rgba(15,122,72,.3)}
 .brand{flex:1;min-width:0}
-.brand b{display:block;font-size:17px;font-weight:800;letter-spacing:-.2px;color:var(--g800)}
-.brand small{display:block;font-size:12.5px;font-weight:700;color:var(--g600);line-height:1.3}
+.brand b{display:block;font-size:clamp(13.5px,4.3vw,17px);font-weight:800;letter-spacing:-.3px;color:var(--g800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{display:block;font-size:clamp(10.5px,3.2vw,12.5px);font-weight:700;color:var(--g600);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .call-btn{display:flex;align-items:center;gap:6px;background:var(--g700);color:#fff;text-decoration:none;font-weight:700;font-size:13.5px;padding:6px 14px 6px 12px;border-radius:999px;box-shadow:0 4px 12px rgba(15,122,72,.28)}
 .call-btn svg{width:16px;height:16px;flex:none}
 .call-btn .ct{display:flex;flex-direction:column;line-height:1.15}
@@ -243,7 +243,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 .ibox{border-radius:14px;padding:12px 14px;font-size:13.5px;margin-top:14px}
 .ibox.g{background:var(--g50);color:var(--g900)}
 .ibox.y{background:#fff7e6;color:#7a4b00}
-.lang{flex:none;border:1.5px solid var(--line);border-radius:999px;padding:7px 8px;font-weight:700;font-size:13px;background:#fff;color:var(--ink);max-width:104px}
+.lang{flex:none;border:1.5px solid var(--line);border-radius:999px;padding:6px 4px;font-weight:700;font-size:12.5px;background:#fff;color:var(--ink);max-width:78px}
 .hitem .hr small .tg{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:#fde8e8;color:var(--red);margin-left:4px}
 .cbtn{flex:none;border:1.5px solid #f3b4b4;color:var(--red);background:#fff;border-radius:10px;padding:6px 10px;font-weight:700;font-size:12.5px}
 .hitem .hx{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
