@@ -343,7 +343,7 @@ else{var sp="";try{sp=localStorage.getItem("xg_adm_pw")||"";}catch(e){} if(sp)lo
 
 /* ---------- Tabs ---------- */
 $("nav").onclick=function(e){var b=e.target.closest("button");if(!b)return;
-  if(curTab==="gia"||curTab==="cd"){if(isDirty()&&!confirm("Có thay đổi chưa lưu. Bỏ qua?"))return; if(isDirty())undo();}
+  if((curTab==="gia"||curTab==="cd")&&isDirty()&&b.dataset.t!==curTab){askOk("Có thay đổi chưa lưu. Bỏ các thay đổi này?","Bỏ thay đổi",function(){undo();b.click();},true);return;}
   curTab=b.dataset.t;[].forEach.call($("nav").children,function(x){x.classList.toggle("on",x===b);});
   ["don","xep","tk","gia","cd","qr"].forEach(function(t){$("t-"+t).classList.toggle("hide",t!==curTab);});
   render();window.scrollTo(0,0);};
@@ -478,7 +478,7 @@ function fillBody(card){
     if(sb){var k=+sb.dataset.st;patchO(o,{status:ST[k]},card);return;}
     if(!ab)return;
     if(ab.dataset.act==="copy"){copy(card._info);return;}
-    if(ab.dataset.act==="del"){if(confirm("Xoá hẳn đơn "+o.code+"? (Nên chọn ❌ Huỷ để còn lưu vết)"))call("deleteOrder",[o.code]).then(function(){ORD=ORD.filter(function(x){return x!==o;});toast("Đã xoá");render();}).catch(fail);return;}
+    if(ab.dataset.act==="del"){askOk("Xoá hẳn đơn "+o.code+"? (Nên chọn ❌ Huỷ để còn lưu vết)","Xoá đơn",function(){call("deleteOrder",[o.code]).then(function(){ORD=ORD.filter(function(x){return x!==o;});toast("Đã xoá");render();}).catch(fail);},true);return;}
     if(ab.dataset.act==="save"){var p={};[].forEach.call(card.querySelectorAll(".ob .f[data-k]"),function(inp){var v=inp.value.trim();var cur=inp.dataset.k==="price"?String(num(o.price)||""):String(o[inp.dataset.k]||"");if(v!==cur)p[inp.dataset.k]=v;});
       if(!Object.keys(p).length){toast("Không có gì thay đổi");return;}patchO(o,p,card);}
   };
@@ -489,7 +489,7 @@ function patchO(o,p,card){
   call("updateOrder",[o.code,p]).then(function(){for(var k in p)o[k]=p[k];toast("✔ Đã lưu");openCode=o.code;render();})
   .catch(function(e){fail(e);[].forEach.call(btns,function(b){b.disabled=false;});});
 }
-function copy(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast("Đã copy");}).catch(function(){prompt("Copy nội dung:",t);});}
+function copy(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast("Đã copy");}).catch(function(){openOv('<h3 style="margin:0 0 8px">Copy nội dung</h3><textarea class="f" style="width:100%;height:180px" readonly>'+esc(t)+'</textarea><div class="act"><button class="btn sec" data-close>Đóng</button></div>');var ta=document.querySelector("#ovBody textarea");ta.focus();ta.select();});}
 $("kpi").onclick=function(e){var k=e.target.closest("[data-k]");if(!k)return;if(k.dataset.k==="0"){fStatus="0";$("fd").value="all";}else{fStatus="act";$("fd").value=k.dataset.k;}$("fsort").value="go";renderOrders();};
 
 /* tạo đơn tổng đài */
@@ -526,6 +526,18 @@ $("newBtn").onclick=function(){
 function nameKey(n){var p=(CFG.PLACES||[]).filter(function(x){return x.name===n;})[0];return p?p.key:n;}
 function openOv(h){$("ovBody").innerHTML=h;$("ov").classList.remove("hide");}
 function closeOv(){$("ov").classList.add("hide");}
+/* Hộp hỏi trong trang (thay cho prompt/confirm – nhiều trình duyệt chặn) */
+function askOk(msg,okText,cb,danger){
+  openOv('<h3 style="margin:0 0 10px">'+esc(msg)+'</h3><div class="act"><button class="btn sec" data-close>Huỷ</button><span style="flex:1"></span><button class="btn'+(danger?' red':'')+'" id="dOk">'+esc(okText||"Đồng ý")+'</button></div>');
+  $("dOk").onclick=function(){closeOv();cb();};
+}
+function askText(title,fields,okText,cb){
+  openOv('<h3 style="margin:0 0 12px">'+esc(title)+'</h3>'+fields.map(function(f,i){return '<label class="fl" style="margin-bottom:10px"><span>'+esc(f.label)+'</span><input class="f" id="dF'+i+'" type="'+(f.type||"text")+'"'+(f.ph?' placeholder="'+esc(f.ph)+'"':"")+' autocomplete="'+(f.type==="password"?"new-password":"off")+'"></label>';}).join("")+
+   '<div class="err" id="dErr"></div><div class="act"><button class="btn sec" data-close>Huỷ</button><span style="flex:1"></span><button class="btn" id="dOk">'+esc(okText||"Lưu")+'</button></div>');
+  setTimeout(function(){$("dF0").focus();},50);
+  var go=function(){var v=fields.map(function(f,i){return $("dF"+i).value.trim();});var e=cb(v);if(e){$("dErr").textContent=e;}};
+  $("dOk").onclick=go;[].forEach.call(document.querySelectorAll("#ovBody input"),function(x){x.onkeydown=function(ev){if(ev.key==="Enter")go();};});
+}
 $("ov").onclick=function(e){if(e.target===this||e.target.closest("[data-close]"))closeOv();};
 
 $("csvBtn").onclick=function(){
@@ -603,10 +615,10 @@ $("t-gia").addEventListener("input",function(e){var t=e.target;
 });
 $("t-gia").addEventListener("change",function(e){if(e.target.dataset.rt!=null||e.target.dataset.f==="key")renderPrices();});
 $("t-gia").addEventListener("click",function(e){var t=e.target;
-  if(t.dataset.delpl!=null){var p=EDIT.PLACES[+t.dataset.delpl],used=EDIT.ROUTES.filter(function(r){return r.a===p.key||r.b===p.key;}).length;if(used&&!confirm("Điểm "+p.name+" đang có "+used+" tuyến. Xoá điểm sẽ xoá luôn các tuyến đó?"))return;EDIT.ROUTES=EDIT.ROUTES.filter(function(r){return r.a!==p.key&&r.b!==p.key;});EDIT.PLACES.splice(+t.dataset.delpl,1);renderPrices();}
+  if(t.dataset.delpl!=null){var p=EDIT.PLACES[+t.dataset.delpl],used=EDIT.ROUTES.filter(function(r){return r.a===p.key||r.b===p.key;}).length;var idx=+t.dataset.delpl,doDel=function(){EDIT.ROUTES=EDIT.ROUTES.filter(function(r){return r.a!==p.key&&r.b!==p.key;});EDIT.PLACES.splice(idx,1);renderPrices();};if(used)askOk("Điểm "+p.name+" đang có "+used+" tuyến. Xoá điểm sẽ xoá luôn các tuyến đó?","Xoá",doDel,true);else doDel();}
   if(t.dataset.delrt!=null){EDIT.ROUTES.splice(+t.dataset.delrt,1);renderPrices();}
 });
-$("plAdd").onclick=function(){var n=prompt("Tên điểm mới (VD: Hải Dương):");if(!n)return;var k=n.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/gi,"d").toLowerCase().replace(/[^a-z0-9]/g,"");if(EDIT.PLACES.some(function(p){return p.key===k;})){toast("Điểm đã có");return;}EDIT.PLACES.push({key:k,name:n.trim()});renderPrices();};
+$("plAdd").onclick=function(){askText("Thêm điểm đón / trả",[{label:"Tên điểm",ph:"VD: Hải Dương"}],"Thêm",function(v){var n=v[0];if(!n)return "Nhập tên điểm";var k=n.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/gi,"d").toLowerCase().replace(/[^a-z0-9]/g,"");if(!k)return "Tên không hợp lệ";if(EDIT.PLACES.some(function(p){return p.key===k;}))return "Điểm này đã có";EDIT.PLACES.push({key:k,name:n});closeOv();renderPrices();toast("Đã thêm – nhớ thêm tuyến & bấm Lưu");});};
 $("rtAdd").onclick=function(){if(EDIT.PLACES.length<2)return;EDIT.ROUTES.push({a:EDIT.PLACES[0].key,b:EDIT.PLACES[1].key,ghep:0,xe5:0,xe7:0});renderPrices();var rows=$("rtBody").rows;rows[rows.length-1].scrollIntoView({block:"center"});};
 
 /* ================= CÀI ĐẶT ================= */
@@ -642,10 +654,16 @@ $("saveBtn").onclick=function(){
   this.disabled=true;var me=this;
   call("saveConfig",[out]).then(function(r){setCfg(r);toast("✔ Đã lưu – trang khách cập nhật ngay");render();markDirty();}).catch(fail).then(function(){me.disabled=false;});
 };
-$("resetBtn").onclick=function(){if(!confirm("Xoá mọi cài đặt đã sửa và quay về nội dung config.js?"))return;call("saveConfig",[null]).then(function(){setCfg(null);render();toast("Đã khôi phục cài đặt gốc");}).catch(fail);};
+$("resetBtn").onclick=function(){askOk("Xoá mọi cài đặt đã sửa và quay về nội dung config.js?","Khôi phục",function(){call("saveConfig",[null]).then(function(){setCfg(null);render();toast("Đã khôi phục cài đặt gốc");}).catch(fail);},true);};
 $("tgBtn").onclick=function(){var b=this;b.disabled=true;call("testTelegram").then(function(){toast("✔ Đã gửi – kiểm tra Telegram");}).catch(fail).then(function(){b.disabled=false;});};
-$("pwBtn").onclick=function(){var p=prompt("Mật khẩu mới (ít nhất 6 ký tự):");if(!p)return;if(p!==prompt("Nhập lại mật khẩu mới:")){toast("Hai lần nhập không khớp");return;}
-  call("changePassword",[p]).then(function(){PW=p;try{localStorage.setItem("xg_adm_pw",p);}catch(e){}toast("✔ Đã đổi mật khẩu");}).catch(fail);};
+$("pwBtn").onclick=function(){
+  askText("🔑 Đổi mật khẩu quản lý",[{label:"Mật khẩu mới (ít nhất 6 ký tự)",type:"password"},{label:"Nhập lại mật khẩu mới",type:"password"}],"Đổi mật khẩu",function(v){
+    if(v[0].length<6)return "Mật khẩu cần ít nhất 6 ký tự";
+    if(v[0]!==v[1])return "Hai lần nhập không khớp";
+    $("dOk").disabled=true;
+    call("changePassword",[v[0]]).then(function(){PW=v[0];try{localStorage.setItem("xg_adm_pw",v[0]);}catch(e){}closeOv();toast("✔ Đã đổi mật khẩu");}).catch(function(e){$("dOk").disabled=false;$("dErr").textContent=e.message;});
+  });
+};
 document.addEventListener("click",function(e){var c=e.target.closest("[data-copy]");if(c)copy($(c.dataset.copy).value);});
 window.addEventListener("beforeunload",function(e){if(isDirty()){e.preventDefault();e.returnValue="";}});
 })();
