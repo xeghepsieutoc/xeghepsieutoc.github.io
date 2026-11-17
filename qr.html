@@ -78,16 +78,19 @@ button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px;cur
     <div class="scan">Mở Camera → quét mã → chọn giờ → Đặt xe<small>Không cần tải app · Tổng đài gọi lại xác nhận ngay</small></div>
     <div class="feat" id="feat"></div>
     <div class="route" id="pRoutes"></div>
-    <div class="pf"><small>Đặt xe trực tuyến 24/7</small><b id="pHot">APP ĐẶT XE SIÊU TỐC</b></div>
+    <div class="pf"><small id="pFootSub"></small><b id="pFoot"></b></div>
   </div>
 </div>
 <script>
-var C=window.APP_CONFIG,$=function(i){return document.getElementById(i)};
+var BASE=window.APP_CONFIG,$=function(i){return document.getElementById(i)};
+function boot(r){var C={},k;for(k in BASE)C[k]=BASE[k];if(r)for(k in r)if(k!=="API_URL"&&r[k]!=null)C[k]=r[k];run(C);}
+if(BASE.API_URL)fetch(BASE.API_URL+"?fn=config",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){boot(j&&j.ok?j.data:null);}).catch(function(){boot(null);});else boot(null);
+function run(C){
 var names={};C.PLACES.forEach(function(p){names[p.key]=p.name});
 var base=location.href.replace(/qr\.html.*$/,"");
 $("url").value=base;
 C.ROUTES.forEach(function(r){[[r.a,r.b],[r.b,r.a]].forEach(function(x){var o=document.createElement("option");o.value=x[0]+"|"+x[1];o.textContent=names[x[0]]+" → "+names[x[1]];$("route").appendChild(o);});});
-$("pBrand").textContent=C.BRAND;$("pSlogan").textContent=C.SLOGAN;
+$("pBrand").textContent=C.BRAND;$("pSlogan").textContent=C.SLOGAN;$("pFoot").textContent=C.POSTER_FOOTER||C.HOTLINE_DISPLAY;$("pFootSub").textContent=C.POSTER_FOOTER_SUB||"";
 $("feat").innerHTML=C.HIGHLIGHTS.slice(0,3).map(function(h){return "<div><b>"+h.icon+"</b>"+h.text+"</div>"}).join("");
 $("pRoutes").textContent=C.PLACES.map(function(p){return p.name}).join(" · ");
 var dataUrl="";
@@ -108,6 +111,7 @@ function build(){
 ["url","route","src","inst"].forEach(function(i){$(i).addEventListener("input",build);$(i).addEventListener("change",build);});
 $("dl").onclick=function(){var a=document.createElement("a");a.href=dataUrl;a.download="QR-dat-xe"+($("src").value?"-"+$("src").value:"")+".png";a.click();};
 build();
+}
 </script>
 </body>
 </html>

@@ -246,7 +246,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
     <div class="brand"><b id="brandName">Xe Xanh</b><small id="brandSlogan"></small></div>
     <a class="call-btn" id="callTop" href="#">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
-      <span class="ct"><small>Hotline hỗ trợ ứng dụng</small><b id="callTopTxt">Gọi</b></span>
+      <span class="ct"><small id="callTopLbl">Hotline hỗ trợ ứng dụng</small><b id="callTopTxt">Gọi</b></span>
     </a>
   </div>
 </header>
@@ -257,6 +257,12 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
   <div id="inappBanner" class="banner warn hidden">
     <div class="bi">🌐</div>
     <div class="bt"><b>Đang mở trong <span id="inappName">ứng dụng</span></b>Bấm <b style="display:inline">⋯</b> góc trên → <b style="display:inline">Mở bằng trình duyệt</b> để cài app vào điện thoại.</div>
+  </div>
+
+  <!-- Thông báo từ trang quản lý -->
+  <div id="noticeBanner" class="banner warn hidden">
+    <div class="bi">📢</div>
+    <div class="bt" id="noticeTxt"></div>
   </div>
 
   <!-- Cài app -->
@@ -475,7 +481,27 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 <script>
 (function(){
 "use strict";
+/* Lấy cấu hình (giá, tuyến, hotline…) đã sửa ở trang quản lý; lỗi mạng thì dùng config.js */
+var BASE=window.APP_CONFIG,started=false,KEY="xg_remote_cfg";
+function merge(r){var c={},k;for(k in BASE)c[k]=BASE[k];if(r)for(k in r)if(k!=="API_URL"&&k!=="APP_VERSION"&&r[k]!=null)c[k]=r[k];return c;}
+var cached=null;try{cached=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){}
+function start(r){if(started)return;started=true;window.APP_CONFIG=merge(r);main();}
+if(BASE.API_URL){
+  var tmo=setTimeout(function(){start(cached);},3500);
+  if(cached)start(cached);
+  fetch(BASE.API_URL+"?fn=config",{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
+    if(!j||!j.ok)throw 0;
+    var s=JSON.stringify(j.data),old=null;try{old=localStorage.getItem(KEY);localStorage.setItem(KEY,s);}catch(e){}
+    clearTimeout(tmo);
+    if(!started)start(j.data);
+    else if(s!==old&&!window.__xgTouched)location.reload();
+  }).catch(function(){clearTimeout(tmo);start(cached);});
+}else start(null);
+
+function main(){
 var C = window.APP_CONFIG;
+document.addEventListener("input",function(){window.__xgTouched=true;});
+document.addEventListener("click",function(e){if(e.target.closest(".tbtn,.dchip,.seg button,.stepper button"))window.__xgTouched=true;});
 var $ = function(id){return document.getElementById(id);};
 var LS = {
   get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},
@@ -506,6 +532,9 @@ $("ftVer").textContent="Phiên bản "+C.APP_VERSION;
 $("zaloFab").href="https://zalo.me/"+C.ZALO;
 $("doneCall").href=telHref(); $("errCall").href=telHref();
 if(!C.API_URL) $("demoBar").classList.remove("hidden");
+$("callTopLbl").textContent=C.HOTLINE_LABEL||"Hotline";
+if(C.NOTICE){$("noticeTxt").textContent=C.NOTICE;$("noticeBanner").classList.remove("hidden");}
+if(C.OPEN===false){$("noticeTxt").textContent=C.CLOSED_MSG||"Hệ thống đang tạm ngưng nhận đơn.";$("noticeBanner").classList.remove("hidden");$("bookBtn").disabled=true;$("bookBtn").textContent="Tạm ngưng nhận đơn";}
 $("hl").innerHTML=C.HIGHLIGHTS.map(function(h){return '<span class="chip">'+h.icon+" "+h.text+"</span>";}).join("");
 
 /* ---------- Service ---------- */
@@ -603,16 +632,16 @@ function calc(){
 }
 function updatePrice(){
   var p=calc();
-  $("barPrice").textContent=p?fmtMoney(p.total):"Liên hệ";
+  $("barPrice").textContent=p&&p.total?fmtMoney(p.total):"Liên hệ";
   $("barSub").textContent=placeName[state.from]+" → "+placeName[state.to]+(state.svc==="ghep"?" · "+state.seats+" ghế":" · "+SVC[state.svc]);
-  if(p&&state.svc==="ghep") $("seatPrice").textContent=fmtMoney(p.unit)+" / ghế";
+  if(state.svc==="ghep") $("seatPrice").textContent=p&&p.unit?fmtMoney(p.unit)+" / ghế":"Giá liên hệ";
 }
 
 /* ---------- Bảng giá ---------- */
 var ptab="ghep";
 function setPtab(v){ptab=v;[].forEach.call($("ptabs").children,function(b){b.classList.toggle("on",b.dataset.v===v);});renderPT();}
 function renderPT(){
-  $("ptBody").innerHTML=C.ROUTES.map(function(r,i){return '<tr data-i="'+i+'"><td>'+placeName[r.a]+'<span class="arr">⇄</span>'+placeName[r.b]+'</td><td>'+fmtMoney(r[ptab])+'</td></tr>';}).join("");
+  $("ptBody").innerHTML=C.ROUTES.map(function(r,i){return '<tr data-i="'+i+'"><td>'+placeName[r.a]+'<span class="arr">⇄</span>'+placeName[r.b]+'</td><td>'+(r[ptab]?fmtMoney(r[ptab]):"Liên hệ")+'</td></tr>';}).join("");
 }
 $("ptabs").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setPtab(b.dataset.v);});
 $("ptBody").addEventListener("click",function(e){
@@ -779,6 +808,7 @@ if("serviceWorker" in navigator&&location.protocol!=="file:"){
 renderRoute();renderSvc();setPtab(state.svc);renderDates();renderTimes();renderSeats();renderHist();
 // cập nhật giờ khả dụng mỗi phút
 setInterval(function(){if(state.dateIdx===0)renderTimes();},60000);
+}
 })();
 </script>
 </body>

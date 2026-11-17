@@ -1,10 +1,11 @@
 /* =====================================================================
  *  CẤU HÌNH ỨNG DỤNG ĐẶT XE GHÉP
- *  -> Chỉ cần sửa file này khi đổi giá, thêm tuyến, đổi hotline, giờ chạy.
+ *  -> Giá, tuyến, hotline, giờ chạy: sửa trong TRANG QUẢN LÝ (admin.html) là đủ.
+ *     File này chỉ là giá trị gốc khi chưa sửa gì trên trang quản lý.
  *  -> Sau khi sửa: tăng APP_VERSION 1 số để điện thoại khách tự cập nhật.
  * ===================================================================== */
 window.APP_CONFIG = {
-  APP_VERSION: "1.0.1",
+  APP_VERSION: "1.1.0",
 
   /* Thương hiệu hiển thị */
   BRAND: "Xe Xanh",
@@ -13,6 +14,15 @@ window.APP_CONFIG = {
   HOTLINE: "0589353353",          // số gọi (không dấu cách)
   HOTLINE_DISPLAY: "0589 353 353",
   ZALO: "0589353353",             // số Zalo nhận tin
+  HOTLINE_LABEL: "Hotline hỗ trợ ứng dụng",
+  POSTER_FOOTER: "APP ĐẶT XE SIÊU TỐC",
+  POSTER_FOOTER_SUB: "Đặt xe trực tuyến 24/7",
+
+  /* Nhận đơn – sửa nhanh trong trang quản lý admin.html */
+  OPEN: true,
+  CLOSED_MSG: "Hệ thống đang tạm ngưng nhận đơn, vui lòng gọi hotline.",
+  NOTICE: "",
+  CAR_SEATS: 7,         // số ghế 1 xe ghép (dùng khi xếp chuyến)
 
   /* URL Web App Google Apps Script (dán vào sau khi Deploy Code.gs).
      Để trống "" = chế độ DEMO (không gửi Telegram, chỉ hiện thông báo). */
