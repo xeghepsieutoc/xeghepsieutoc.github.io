@@ -126,15 +126,21 @@ table.t{width:100%;border-collapse:collapse;font-size:13.5px}
 .dirty{background:#fff8e6!important}
 .savebar{position:sticky;bottom:10px;z-index:15;background:#10231a;color:#fff;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .savebar span{flex:1;font-size:13.5px}
+/* chế độ chỉ xem */
+.ro #nav [data-t="gia"],.ro #nav [data-t="cd"],.ro #newBtn,.ro .ob .sts,.ro .ob [data-act="save"],.ro .ob [data-act="del"],.ro .trip [data-x="assign"],.ro .trip .act input{display:none!important}
+.ro .ob .grid2 input{pointer-events:none;background:#f5f7f6;border-color:transparent}
+.robadge{display:inline-block;background:#f59e0b;color:#fff;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:800;margin-left:6px}
 @media(max-width:560px){.oh{grid-template-columns:auto 1fr}.oh .r{grid-row:auto;grid-column:2;text-align:left;display:flex;gap:8px;align-items:center}.bars div{grid-template-columns:100px 1fr 56px}}
 </style>
 </head>
 <body>
 
 <div id="lg" class="login">
-  <img src="icons/icon-192.png" alt="">
+  <img src="icons/admin-192.png" alt="">
   <h2>Đăng nhập quản lý</h2>
+  <input id="ph" class="f" type="tel" inputmode="tel" placeholder="Số điện thoại của bạn" autocomplete="tel" style="margin-bottom:8px">
   <input id="pw" class="f" type="password" placeholder="Mật khẩu" autocomplete="current-password">
+  <div style="font-size:12.5px;color:#6b7d73;margin-top:8px;line-height:1.5">Chủ nhà xe: số 0813631111 + mật khẩu quản lý.<br>Nhân viên / tài xế: số của mình + mật khẩu người xem (chỉ xem).</div>
   <button class="btn" style="width:100%;margin-top:10px;justify-content:center" id="lbtn">Đăng nhập</button>
   <div class="err" id="lerr"></div>
 </div>
@@ -205,6 +211,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13.5px}
       <div class="card"><h3>Nguồn QR / kênh</h3><div class="bars" id="tkSrc"></div></div>
       <div class="card"><h3>Loại xe</h3><div class="bars" id="tkSvc"></div></div>
       <div class="card"><h3>Giờ đi được chọn nhiều</h3><div class="bars" id="tkHour"></div></div>
+      <div class="card"><h3>❌ Đơn đã huỷ – lý do</h3><div class="bars" id="tkCancel"></div></div>
     </div>
   </section>
 
@@ -275,6 +282,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13.5px}
         <button class="btn sec" id="tgBtn">📨 Gửi thử Telegram</button>
         <a class="btn sec" id="sheetBtn" target="_blank" rel="noopener">📊 Mở Google Sheet</a>
         <button class="btn sec" id="pwBtn">🔑 Đổi mật khẩu</button>
+        <button class="btn sec" id="vpwBtn">👁 Mật khẩu người xem</button>
         <button class="btn red" id="resetBtn">Khôi phục cài đặt gốc</button>
       </div>
       <p class="note">Cài đặt gốc = nội dung file config.js trên GitHub.</p>
@@ -309,7 +317,7 @@ var API=BASE.API_URL;
 var ST=["🆕 Mới","📞 Đã gọi","🚘 Đã xếp xe","✅ Hoàn thành","❌ Huỷ"];
 var STN=["Mới","Đã gọi","Đã xếp xe","Hoàn thành","Huỷ"];
 var $=function(id){return document.getElementById(id);};
-var PW="",ORD=[],CFG=null,EDIT=null,INFO={},curTab="don",fStatus="act",openCode=location.hash.slice(1)||"",knownCodes=null;
+var PW="",PH="",ROLE="",ORD=[],CFG=null,EDIT=null,INFO={},curTab="don",fStatus="act",openCode=location.hash.slice(1)||"",knownCodes=null;
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function toast(t,ms){var e=$("toast");e.textContent=t;e.classList.add("show");clearTimeout(e._h);e._h=setTimeout(function(){e.classList.remove("show");},ms||2200);}
 function pad(n){return (n<10?"0":"")+n;}
@@ -326,29 +334,32 @@ var WD=["CN","T2","T3","T4","T5","T6","T7"];
 
 /* ---------- API ---------- */
 function call(fn,args){
-  return fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args||[],pw:PW})})
+  return fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args||[],pw:PW,phone:PH})})
     .then(function(r){return r.json();})
     .then(function(j){if(j.auth===false){logout(j.error);throw new Error(j.error);} if(!j.ok)throw new Error(j.error||"Lỗi");return j.data;});
 }
 function fail(e){toast("⚠️ "+(e&&e.message||"Lỗi kết nối"),3500);}
 
 /* ---------- Login ---------- */
-function login(p){
+function login(p,ph){
   $("lbtn").disabled=true;$("lerr").textContent="";
-  PW=p;
+  PW=p;PH=ph||"";
   call("login").then(function(info){
-    INFO=info||{};try{localStorage.setItem("xg_adm_pw",p);}catch(e){}
+    INFO=info||{};ROLE=INFO.role||"owner";try{localStorage.setItem("xg_adm_pw",p);localStorage.setItem("xg_adm_ph",PH);}catch(e){}
+    document.body.classList.toggle("ro",ROLE!=="owner");
+    if(ROLE!=="owner"&&(curTab==="gia"||curTab==="cd"))curTab="don";
     $("lg").classList.add("hide");$("app").classList.remove("hide");
     boot();
   }).catch(function(e){$("lerr").textContent=e.message||"Không kết nối được";PW="";})
   .then(function(){$("lbtn").disabled=false;});
 }
-function logout(msg){try{localStorage.removeItem("xg_adm_pw");}catch(e){}PW="";$("app").classList.add("hide");$("lg").classList.remove("hide");if(msg)$("lerr").textContent=msg;}
-$("lbtn").onclick=function(){var p=$("pw").value.trim();if(p)login(p);};
+function logout(msg){try{localStorage.removeItem("xg_adm_pw");}catch(e){}PW="";ROLE="";document.body.classList.remove("ro");$("app").classList.add("hide");$("lg").classList.remove("hide");if(msg)$("lerr").textContent=msg;}
+$("lbtn").onclick=function(){var p=$("pw").value.trim(),ph=$("ph").value.replace(/[^\d]/g,"");if(ph.length<9){$("lerr").textContent="Nhập số điện thoại của bạn";$("ph").focus();return;}if(p)login(p,ph);};
+try{$("ph").value=localStorage.getItem("xg_adm_ph")||"";}catch(e){}
 $("pw").onkeydown=function(e){if(e.key==="Enter")$("lbtn").click();};
 $("outBtn").onclick=function(){logout();};
 if(!API){$("lerr").textContent="Chưa có API_URL trong config.js";}
-else{var sp="";try{sp=localStorage.getItem("xg_adm_pw")||"";}catch(e){} if(sp)login(sp);}
+else{var sp="",sph="";try{sp=localStorage.getItem("xg_adm_pw")||"";sph=localStorage.getItem("xg_adm_ph")||"";}catch(e){} if(sp&&sph)login(sp,sph);}
 
 /* ---------- Tabs ---------- */
 $("nav").onclick=function(e){var b=e.target.closest("button");if(!b)return;
@@ -392,7 +403,7 @@ function updHeader(){
   $("hBrand").textContent=(CFG&&CFG.BRAND?CFG.BRAND+" – ":"")+"Quản lý";
   var n=ORD.filter(function(o){return sIdx(o.status)===0;}).length;
   $("bdNew").textContent=n;$("bdNew").classList.toggle("hide",!n);
-  $("hSub").textContent=(CFG&&CFG.OPEN===false?"⛔ Đang TẠM NGƯNG nhận đơn · ":"")+ORD.length+" đơn · cập nhật "+new Date().toTimeString().slice(0,5);
+  $("hSub").innerHTML=(CFG&&CFG.OPEN===false?"⛔ Đang TẠM NGƯNG nhận đơn · ":"")+ORD.length+" đơn · cập nhật "+new Date().toTimeString().slice(0,5)+(ROLE&&ROLE!=="owner"?'<span class="robadge">👁 Chỉ xem · '+esc(PH)+'</span>':"");
   document.title=(n?"("+n+") ":"")+"Quản lý đặt xe";
 }
 function render(){
@@ -405,7 +416,7 @@ function render(){
 }
 
 /* ================= ĐƠN ================= */
-var STF=[["act","Cần xử lý"],["0","🆕 Mới"],["1","📞 Đã gọi"],["2","🚘 Đã xếp xe"],["3","✅ Hoàn thành"],["4","❌ Huỷ"],["all","Tất cả"]];
+var STF=[["act","Cần xử lý"],["0","🆕 Mới"],["1","📞 Đã gọi"],["2","🚘 Đã xếp xe"],["3","✅ Hoàn thành"],["4","❌ Đã huỷ"],["all","Tất cả"]];
 $("stPills").onclick=function(e){var b=e.target.closest(".pill");if(!b)return;fStatus=b.dataset.v;renderOrders();};
 ["fd","fsort"].forEach(function(id){$(id).onchange=renderOrders;});
 $("fq").oninput=function(){clearTimeout(this._t);this._t=setTimeout(renderOrders,200);};
@@ -621,6 +632,7 @@ function renderStats(){
   bars("tkSrc",ok,function(o){return o.src||"(Không có)";});
   bars("tkSvc",ok,function(o){return o.serviceName||"?";});
   bars("tkHour",ok,function(o){return (String(o.time).split(":")[0]||"?")+"h";});
+  bars("tkCancel",L.filter(function(o){return sIdx(o.status)===4;}),function(o){var m=String(o.inote||"").match(/Khách tự huỷ[^:]*:\s*([^|(]+)/);return m?"Khách huỷ: "+m[1].trim().slice(0,40):"Nhà xe huỷ / khác";});
 }
 function bars(id,L,key){var c={};L.forEach(function(o){var k=key(o);c[k]=(c[k]||0)+1;});var a=Object.keys(c).sort(function(x,y){return c[y]-c[x];}).slice(0,8),mx=a.length?c[a[0]]:1;
   $(id).innerHTML=a.length?a.map(function(k){return '<div><span>'+esc(k)+'</span><i style="width:'+(c[k]/mx*100)+'%"></i><span>'+c[k]+'</span></div>';}).join(""):'<span class="note">Chưa có dữ liệu</span>';}
@@ -690,6 +702,12 @@ $("pwBtn").onclick=function(){
     if(v[0]!==v[1])return "Hai lần nhập không khớp";
     $("dOk").disabled=true;
     call("changePassword",[v[0]]).then(function(){PW=v[0];try{localStorage.setItem("xg_adm_pw",v[0]);}catch(e){}closeOv();toast("✔ Đã đổi mật khẩu");}).catch(function(e){$("dOk").disabled=false;$("dErr").textContent=e.message;});
+  });
+};
+$("vpwBtn").onclick=function(){
+  askText("👁 Mật khẩu cho người chỉ xem",[{label:"Mật khẩu người xem (để trống = khoá, không ai xem được)",type:"text",ph:"VD: xem2026"}],"Lưu",function(v){
+    $("dOk").disabled=true;
+    call("setViewPassword",[v[0]]).then(function(r){closeOv();INFO.viewPw=!!r;toast(r?"✔ Đã đặt – nhân viên đăng nhập bằng số của họ + mật khẩu này (chỉ xem)":"Đã khoá quyền xem",4500);}).catch(function(e){$("dOk").disabled=false;$("dErr").textContent=e.message;});
   });
 };
 document.addEventListener("click",function(e){var c=e.target.closest("[data-copy]");if(c)copy($(c.dataset.copy).value);});
