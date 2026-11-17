@@ -231,7 +231,9 @@ table.t{width:100%;border-collapse:collapse;font-size:13.5px}
       <h3>Thương hiệu & liên hệ</h3>
       <div class="grid2">
         <label class="fl"><span>Tên thương hiệu</span><input class="f" id="c_BRAND"></label>
-        <label class="fl"><span>Khẩu hiệu (dưới tên)</span><input class="f" id="c_SLOGAN"></label>
+        <label class="fl"><span>Đầu trang khách – dòng to</span><input class="f" id="c_HEADER_TITLE"></label>
+        <label class="fl"><span>Đầu trang khách – dòng nhỏ</span><input class="f" id="c_HEADER_SUB"></label>
+        <label class="fl"><span>Khẩu hiệu (poster QR)</span><input class="f" id="c_SLOGAN"></label>
         <label class="fl"><span>Dòng chân trang</span><input class="f" id="c_TAGLINE"></label>
         <label class="fl"><span>Nhãn nút gọi góc trên</span><input class="f" id="c_HOTLINE_LABEL"></label>
         <label class="fl"><span>Số hotline (để gọi, viết liền)</span><input class="f" id="c_HOTLINE" inputmode="tel"></label>
@@ -623,7 +625,7 @@ $("plAdd").onclick=function(){askText("Thêm điểm đón / trả",[{label:"Tê
 $("rtAdd").onclick=function(){if(EDIT.PLACES.length<2)return;EDIT.ROUTES.push({a:EDIT.PLACES[0].key,b:EDIT.PLACES[1].key,ghep:0,xe5:0,xe7:0});renderPrices();var rows=$("rtBody").rows;rows[rows.length-1].scrollIntoView({block:"center"});};
 
 /* ================= CÀI ĐẶT ================= */
-var TXT=["CLOSED_MSG","NOTICE","BRAND","SLOGAN","TAGLINE","HOTLINE_LABEL","HOTLINE","HOTLINE_DISPLAY","ZALO","POSTER_FOOTER","POSTER_FOOTER_SUB","WEBSITE"],NUMS=["FIRST_HOUR","LAST_HOUR","STEP_MINUTES","MIN_LEAD_MINUTES","MAX_DAYS_AHEAD","MAX_SEATS_GHEP","CAR_SEATS"];
+var TXT=["CLOSED_MSG","NOTICE","BRAND","HEADER_TITLE","HEADER_SUB","SLOGAN","TAGLINE","HOTLINE_LABEL","HOTLINE","HOTLINE_DISPLAY","ZALO","POSTER_FOOTER","POSTER_FOOTER_SUB","WEBSITE"],NUMS=["FIRST_HOUR","LAST_HOUR","STEP_MINUTES","MIN_LEAD_MINUTES","MAX_DAYS_AHEAD","MAX_SEATS_GHEP","CAR_SEATS"];
 function renderSettings(){
   $("c_OPEN").checked=EDIT.OPEN!==false;
   TXT.forEach(function(k){$("c_"+k).value=EDIT[k]==null?"":EDIT[k];});

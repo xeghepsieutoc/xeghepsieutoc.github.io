@@ -44,7 +44,7 @@ a{color:inherit}
 .logo{width:38px;height:38px;border-radius:11px;flex:none;box-shadow:0 2px 8px rgba(15,122,72,.3)}
 .brand{flex:1;min-width:0}
 .brand b{display:block;font-size:17px;font-weight:800;letter-spacing:-.2px;color:var(--g800)}
-.brand small{display:block;font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{display:block;font-size:12.5px;font-weight:700;color:var(--g600);line-height:1.3}
 .call-btn{display:flex;align-items:center;gap:6px;background:var(--g700);color:#fff;text-decoration:none;font-weight:700;font-size:13.5px;padding:6px 14px 6px 12px;border-radius:999px;box-shadow:0 4px 12px rgba(15,122,72,.28)}
 .call-btn svg{width:16px;height:16px;flex:none}
 .call-btn .ct{display:flex;flex-direction:column;line-height:1.15}
@@ -411,7 +411,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
   </footer>
 </main>
 
-<a class="fab" id="zaloFab" href="#" target="_blank" rel="noopener" aria-label="Chat Zalo">Zalo</a>
+<a class="fab hidden" id="zaloFab" href="#" target="_blank" rel="noopener" aria-label="Chat Zalo">Zalo</a>
 
 <!-- Thanh dưới -->
 <div class="bar">
@@ -568,7 +568,7 @@ function telHref(){return "tel:"+C.HOTLINE;}
 
 /* ---------- Brand ---------- */
 document.title = "Đặt xe ghép – "+C.BRAND;
-$("brandName").textContent=C.BRAND; $("brandSlogan").textContent=C.SLOGAN;
+$("brandName").textContent=C.HEADER_TITLE||C.BRAND; $("brandSlogan").textContent=C.HEADER_SUB||C.SLOGAN;
 $("callTop").href=telHref(); $("callTopTxt").textContent=C.HOTLINE_DISPLAY;
 $("ftBrand").textContent=C.BRAND; $("ftTag").textContent=C.TAGLINE;
 $("ftHot").textContent=C.HOTLINE_DISPLAY; $("ftHot").href=telHref();

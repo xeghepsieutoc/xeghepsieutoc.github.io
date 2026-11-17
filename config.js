@@ -10,6 +10,8 @@ window.APP_CONFIG = {
   /* Thương hiệu hiển thị */
   BRAND: "Xe Xanh",
   SLOGAN: "Xe ghép – Bao xe cao tốc · Đón trả tận nơi",
+  HEADER_TITLE: "App đặt xe ghép siêu tốc",          // dòng to ở đầu trang khách
+  HEADER_SUB: "⚡ Chỉ 1 phút xe sẽ liên hệ với bạn",  // dòng nhỏ ở đầu trang khách
   TAGLINE: "Phục vụ nhiệt tình · Chu đáo · Tin cậy",
   HOTLINE: "0589353353",          // số gọi (không dấu cách)
   HOTLINE_DISPLAY: "0589 353 353",
