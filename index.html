@@ -258,6 +258,16 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
 .btn-r{background:var(--red);color:#fff;box-shadow:0 6px 18px rgba(220,38,38,.3)}
 .gps-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:8px;padding:10px 12px;border-radius:12px;border:1.5px dashed var(--g500);background:var(--g50);color:var(--g800);font-weight:700;font-size:14px}
 .gps-btn:disabled{opacity:.7}
+.gps-row{display:flex;gap:8px}.gps-row .gps-btn{flex:1;font-size:13.5px;padding:10px 8px}
+.mapov{position:fixed;inset:0;z-index:9999;background:#fff;display:none;flex-direction:column}.mapov.on{display:flex}
+.mapov .mh{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #e5ece8;font-weight:700;color:var(--g800)}.mapov .mh span{flex:1;font-size:15px}
+.mapov .mh .x{border:0;background:#f1f5f3;border-radius:50%;width:34px;height:34px;font-size:22px;line-height:1;color:#334}
+#gmap{flex:1;position:relative;background:#eef2ef}
+.mapov .pin{position:absolute;left:50%;top:50%;z-index:500;width:38px;height:38px;margin:-38px 0 0 -19px;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.mapov .mf{padding:10px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #e5ece8}
+.mapov .ma2{font-size:13.5px;min-height:38px;margin-bottom:8px;color:#1d2b24;line-height:1.35}
+.mapov .mb{display:flex;gap:8px}.mapov .mb button{border-radius:12px;padding:12px 10px;font-weight:700;font-size:14px}
+.mapov .mb .b1{flex:1;border:1.5px solid var(--g500);background:var(--g50);color:var(--g800)}.mapov .mb .b2{flex:2;border:0;background:var(--g700,#0f7a48);color:#fff}
 .gps-ok{font-size:12.5px;color:var(--g800);margin-top:6px;line-height:1.4}
 .chbtn{flex:none;border:1.5px solid var(--g500);color:var(--g800);background:var(--g50);border-radius:10px;padding:6px 10px;font-weight:700;font-size:12.5px;position:relative}
 .chbtn .bd{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;line-height:18px;text-align:center;padding:0 4px}
@@ -428,7 +438,7 @@ footer a{color:var(--g700);font-weight:600;text-decoration:none}
         <input class="inp" id="pickup" placeholder="Số nhà, đường, phường/xã…" maxlength="200">
         <div class="errmsg">Vui lòng nhập điểm đón</div>
       </label>
-      <button type="button" class="gps-btn" id="gpsBtn">📍 Dùng vị trí hiện tại của tôi</button>
+      <div class="gps-row"><button type="button" class="gps-btn" id="gpsBtn">📍 Vị trí hiện tại</button><button type="button" class="gps-btn" id="mapBtn">🗺️ Chọn trên bản đồ</button></div>
       <div class="gps-ok hidden" id="gpsOk"></div>
       <div class="achips hidden" id="pkChips"></div>
       <label class="field"><span>Điểm trả</span>
@@ -858,24 +868,52 @@ function renderAddr(kind){
 /* ---------- Định vị GPS cho điểm đón ---------- */
 var GPS="";
 function setGps(v,acc){GPS=v;var b=$("gpsOk");if(!v){b.classList.add("hidden");return;}
-  b.innerHTML="✅ "+T("gpsOk",{m:Math.round(acc||0)})+' · <a href="https://www.google.com/maps/search/?api=1&query='+v+'" target="_blank" rel="noopener">'+T("gpsMap")+"</a>";b.classList.remove("hidden");}
-$("gpsBtn").textContent=T("gpsBtn");
+  b.innerHTML="✅ "+(acc==null?T("mapOk"):T("gpsOk",{m:Math.round(acc||0)}))+' · <a href="https://www.google.com/maps/search/?api=1&query='+v+'" target="_blank" rel="noopener">'+T("gpsMap")+"</a>";b.classList.remove("hidden");}
+$("gpsBtn").textContent=T("gpsNow");$("mapBtn").textContent=T("mapBtn");
 $("pickup").addEventListener("input",function(e){if(e.isTrusted&&GPS)setGps("");});
+/* tra địa chỉ từ toạ độ rồi điền vào ô điểm đón */
+function revGeo(la,lo){return fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=0&accept-language=vi&lat="+la+"&lon="+lo)
+  .then(function(r){return r.json();}).then(function(j){var n=String(j&&j.display_name||"").split(",").map(function(x){return x.trim();}).filter(function(x){return x&&!/^\d{5,6}$/.test(x)&&x!=="Việt Nam";});return n.slice(0,5).join(", ");});}
+function geoApply(la,lo,acc){la=(+la).toFixed(6);lo=(+lo).toFixed(6);var ll=la+","+lo;
+  var fill=function(addr){$("pickup").value=addr||T("gpsNoAddr");$("pickup").classList.remove("err");renderAddr("pickup");setGps(ll,acc);};
+  return revGeo(la,lo).then(fill,function(){fill("");});}
+function gpsGet(){return new Promise(function(ok,no){if(!navigator.geolocation)return no({code:9});navigator.geolocation.getCurrentPosition(function(p){ok(p.coords);},no,{enableHighAccuracy:true,timeout:15000,maximumAge:60000});});}
 $("gpsBtn").addEventListener("click",function(){
   var b=this;
   if(!navigator.geolocation){toast(T("gpsFail"),4000);return;}
   b.disabled=true;b.innerHTML='<span class="spin" style="border-color:rgba(15,122,72,.25);border-top-color:#0f7a48"></span> '+T("gpsLoading");
-  var reset=function(){b.disabled=false;b.textContent=T("gpsBtn");};
-  navigator.geolocation.getCurrentPosition(function(pos){
-    var la=pos.coords.latitude.toFixed(6),lo=pos.coords.longitude.toFixed(6),acc=pos.coords.accuracy,ll=la+","+lo;
-    var fill=function(addr){$("pickup").value=addr;$("pickup").classList.remove("err");renderAddr("pickup");setGps(ll,acc);reset();};
-    fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=0&accept-language=vi&lat="+la+"&lon="+lo)
-      .then(function(r){return r.json();})
-      .then(function(j){var n=String(j&&j.display_name||"").split(",").map(function(x){return x.trim();}).filter(function(x){return x&&!/^\d{5,6}$/.test(x)&&x!=="Việt Nam";});
-        fill(n.slice(0,5).join(", ")||T("gpsNoAddr"));})
-      .catch(function(){fill(T("gpsNoAddr"));});
-  },function(err){reset();toast(err&&err.code===1?T("gpsDenied"):T("gpsFail"),5000);},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+  var reset=function(){b.disabled=false;b.textContent=T("gpsNow");};
+  gpsGet().then(function(c){return geoApply(c.latitude,c.longitude,c.accuracy);},function(err){toast(err&&err.code===1?T("gpsDenied"):T("gpsFail"),5000);}).then(reset,reset);
 });
+/* ---------- Chọn điểm đón trên bản đồ (OpenStreetMap + Leaflet, tải khi cần) ---------- */
+var LMAP=null,MTO=null;
+function loadLeaflet(){if(window.L&&window.L.map)return Promise.resolve();return new Promise(function(ok,no){
+  var l=document.createElement("link");l.rel="stylesheet";l.href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";document.head.appendChild(l);
+  var s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
+function mapAddr(){var c=LMAP.getCenter();$("m_ad").textContent=T("mapFind");clearTimeout(MTO);
+  MTO=setTimeout(function(){revGeo(c.lat,c.lng).then(function(a){$("m_ad").textContent=a||(c.lat.toFixed(5)+", "+c.lng.toFixed(5));},function(){$("m_ad").textContent=c.lat.toFixed(5)+", "+c.lng.toFixed(5);});},700);}
+function mapMe(){gpsGet().then(function(c){LMAP.setView([c.latitude,c.longitude],17);},function(e){$("m_ad").textContent=e&&e.code===1?T("mapDenied"):T("mapNoGps");});}
+function mapClose(){var ov=$("mapov");if(ov)ov.classList.remove("on");}
+function mapOpen(){
+  var ov=$("mapov");
+  if(!ov){ov=document.createElement("div");ov.id="mapov";ov.className="mapov";
+    ov.innerHTML='<div class="mh"><span>'+esc(T("mapTitle"))+'</span><button type="button" class="x" id="m_x">×</button></div>'+
+      '<div id="gmap"><svg class="pin" viewBox="0 0 24 24"><path fill="#e5484d" stroke="#fff" stroke-width="1.5" d="M12 1.5a7.5 7.5 0 0 0-7.5 7.5c0 5.6 7.5 13.5 7.5 13.5s7.5-7.9 7.5-13.5A7.5 7.5 0 0 0 12 1.5z"/><circle cx="12" cy="9" r="2.8" fill="#fff"/></svg></div>'+
+      '<div class="mf"><div class="ma2" id="m_ad">'+esc(T("mapLoading"))+'</div><div class="mb"><button type="button" class="b1" id="m_me">'+esc(T("mapMe"))+'</button><button type="button" class="b2" id="m_ok">'+esc(T("mapPick"))+'</button></div></div>';
+    document.body.appendChild(ov);
+    $("m_x").onclick=mapClose; $("m_me").onclick=function(){if(LMAP)mapMe();};
+    $("m_ok").onclick=function(){if(!LMAP)return;var c=LMAP.getCenter();mapClose();geoApply(c.lat,c.lng);};}
+  ov.classList.add("on");
+  loadLeaflet().then(function(){
+    if(!LMAP){var g=GPS?GPS.split(","):null,c0=g?[+g[0],+g[1]]:[20.95,106.95];
+      LMAP=L.map("gmap",{zoomControl:true,attributionControl:true}).setView(c0,g?17:10);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(LMAP);
+      LMAP.on("moveend",mapAddr);
+      if(!g)mapMe();else mapAddr();
+    }else{setTimeout(function(){LMAP.invalidateSize();},50);if(GPS){var g2=GPS.split(",");LMAP.setView([+g2[0],+g2[1]],17);}mapAddr();}
+  },function(){$("m_ad").textContent=T("mapErr");});
+}
+$("mapBtn").addEventListener("click",mapOpen);
 function rememberAddr(kind,v){if(!v)return;var L=ADDR[kind]||[];var i=L.indexOf(v);if(i>=0)L.splice(i,1);L.unshift(v);ADDR[kind]=L.slice(0,5);LS.set("xg_addrs",ADDR);}
 function normPhone(v){v=(v||"").replace(/[^\d+]/g,"");if(v.indexOf("+84")===0)v="0"+v.slice(3);else if(v.indexOf("84")===0&&v.length===11)v="0"+v.slice(2);return v;}
 function validPhone(v){return /^0(3|5|7|8|9)\d{8}$/.test(v)||/^02\d{9}$/.test(v)||/^\+\d{8,15}$/.test(v);}   /* +86…, +82… cho khách nước ngoài */
